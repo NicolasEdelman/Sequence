@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'Mazo.dart';
 import 'cartaTablero.dart';
@@ -19,12 +20,14 @@ class TableroPage extends StatefulWidget {
   final Color? J2selectedColor;
   final int selectedSequence;
   final String name;
+  final double timer;
 
   const TableroPage({
     required this.J1selectedColor,
     required this.J2selectedColor,
     required this.selectedSequence,
     required this.name,
+    required this.timer,
   });
 
   @override
@@ -33,6 +36,7 @@ class TableroPage extends StatefulWidget {
     J2selectedColor: J2selectedColor,
     selectedSequence: selectedSequence,
     name: name,
+    timer: timer,
   );
 
 }
@@ -43,6 +47,7 @@ class _TableroPageState extends State<TableroPage> {
   Color? J2selectedColor;
   int selectedSequence;
   String name;
+  double timer;
 
   Completer<void> _completer = Completer<void>();
   late List<List<Triplet>> matriz =  List.generate(10, (_) => List<Triplet>.generate(10, (_) => Triplet(0, "0", ""),),);
@@ -59,12 +64,16 @@ class _TableroPageState extends State<TableroPage> {
   int columnaCartaSeleccionadaTablero = 0;
   String estado = "";
   Carta ultimaCartaTirada = Carta("0", "");
+  StreamController<int> _timerController = StreamController<int>();
+
+
 
   _TableroPageState({
     required this.J1selectedColor,
     required this.J2selectedColor,
     required this.selectedSequence,
-    required this.name,}) {
+    required this.name,
+    required this.timer}) {
     matriz = construirTablero();
   }
 
@@ -103,8 +112,25 @@ class _TableroPageState extends State<TableroPage> {
             )
             ),
         if(estado != "") Text(estado),
+        SizedBox(height: 30),
         if(!enJuego) ElevatedButton(onPressed: jugar, child: Text("Start")),
-        if(miTurno) Text("Es tu turno!"),
+        if(miTurno)Text("Es tu turno!"),
+
+        StreamBuilder<int>(
+          stream: _timerController.stream,
+          initialData: -1 ,// Establece el valor inicial del temporizador
+          builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+            if (snapshot.data == 0) {
+              return Text('Tiempo agotado');
+            }
+            else if(snapshot.data == -1){
+              return Text("");
+            }
+            else {
+              return Text('Te quedan ${snapshot.data} segundos');
+            }
+          },
+        ),
         Padding(
           padding: EdgeInsets.only(bottom: 70),
           child: Center(
@@ -184,7 +210,23 @@ class _TableroPageState extends State<TableroPage> {
     }
   }
 
-  Future<void>  turnoJugador1() async{
+  Future<void> turnoJugador1() async {
+    miTurno = true;
+    int tiempoRestante = timer.toInt(); // Establece el tiempo inicial
+    _timerController.add(tiempoRestante); // Emite el valor inicial
+    Timer timerTurn = Timer.periodic(Duration(seconds: 1), (timerTurn) {
+      setState(() {
+        if(tiempoRestante > 0){
+          tiempoRestante --;
+          _timerController.add(tiempoRestante);
+        }
+        else{
+          miTurno = false;
+          _timerController.add(0);
+          timerTurn.cancel();
+        }
+      });
+    });
 
     setState(() {
       cartaPresionada = Carta("0", "");
@@ -194,55 +236,72 @@ class _TableroPageState extends State<TableroPage> {
 
     print("Es mi turno y estoy esperando que aprete una carta...");
 
-    while(cartaPresionada.numero == "0" ){
+    while (cartaPresionada.numero == "0") {
       await Future.delayed(Duration(milliseconds: 100));
+      if(!miTurno){
+        setState(() {
+          estado = "Perdiste tu turno!";
+        });
+        timerTurn.cancel();
+        return;
+      }
     }
-    if((cartaPresionada.numero != "Wild" && cartaPresionada.numero != "Remove") && tengoDeadCard(cartaPresionada)){
+
+    if ((cartaPresionada.numero != "Wild" && cartaPresionada.numero != "Remove") &&
+        tengoDeadCard(cartaPresionada)) {
       setState(() {
-        for(int i = poscartaPresionada; i <6; i++){
-          cartasEnManoMia[i] = cartasEnManoMia[i+1];
+        for (int i = poscartaPresionada; i < 6; i++) {
+          cartasEnManoMia[i] = cartasEnManoMia[i + 1];
         }
         cartasEnManoMia[6] = mazo.darPrimerCarta();
         estado = "¡Dead card!";
-        print("Dead card!");
       });
     }
+    cartaSeleccionadaTablero = Carta("-1", "");
     while (cartaPresionada.numero != cartaSeleccionadaTablero.numero ||
         cartaPresionada.palo != cartaSeleccionadaTablero.palo) {
-      await Future.delayed(Duration(milliseconds: 100)); // Esperar un breve tiempo antes de revisar de nuevo
-      if(cartaSeleccionadaTablero.numero != "-1"){
-        if(cartaPresionada.numero == "Wild"){
-
-          if(matriz[filaCartaSeleccionadaTablero][columnaCartaSeleccionadaTablero].fichaPuesta != 0){
+      await Future.delayed(Duration(milliseconds: 100));
+      if(!miTurno){
+        setState(() {
+          estado = "Perdiste tu turno!";
+        });
+        timerTurn.cancel();
+        return;
+      }
+      if (cartaSeleccionadaTablero.numero != "-1") {
+        if (cartaPresionada.numero == "Wild") {
+          if (matriz[filaCartaSeleccionadaTablero][columnaCartaSeleccionadaTablero].fichaPuesta != 0) {
             setState(() {
               estado = "El Wild se debe tirar en una posición vacía!";
             });
             return turnoJugador1();
-          }
-          else {
+          } else {
             break;
           }
-        }
-        else if(cartaPresionada.numero == "Remove"){
-
-          if(matriz[filaCartaSeleccionadaTablero][columnaCartaSeleccionadaTablero].fichaPuesta == 0){
+        } else if (cartaPresionada.numero == "Remove") {
+          if (matriz[filaCartaSeleccionadaTablero][columnaCartaSeleccionadaTablero].fichaPuesta == 0) {
             setState(() {
               estado = "Tenes que quitar una ficha!";
             });
             return turnoJugador1();
-          }
-          else {
+          } else {
             break;
           }
         }
-        else{
-
-        }
       }
-
     }
     tirarCarta();
+    timerTurn.cancel();
+    setState(() {
+      _timerController.add(-1);
+    });
+
   }
+
+
+
+
+
 
   void tirarCarta(){
     print("$name, apoyaste el ${cartaSeleccionadaTablero.numero} de ${cartaSeleccionadaTablero.palo} en el tablero que esta en la fila ${filaCartaSeleccionadaTablero} y columna ${columnaCartaSeleccionadaTablero}");
@@ -262,7 +321,8 @@ class _TableroPageState extends State<TableroPage> {
   }
 
   Future<void> turnoJugador2() async{
-    await Future.delayed(Duration(milliseconds: 1000));
+    print("Juega el jugador 2");
+    await Future.delayed(Duration(milliseconds: 2000));
     String numeroCarta = cartasEnManoOponente[0].numero;
     String paloCarta = cartasEnManoOponente[0].palo;
     bool deadCard = true;
@@ -438,9 +498,6 @@ class _TableroPageState extends State<TableroPage> {
     if(cantidad >= sequences) return true;
     else return false;
   }
-
-
-
 
 
 
@@ -626,6 +683,7 @@ class _TableroPageState extends State<TableroPage> {
     );
   }
 }
+
 
 
 

@@ -38,6 +38,7 @@ class MyAppState extends ChangeNotifier{
   Color? J2selectedColor;
   int selectedSequence = 1;
   String name = '';
+  double? timer;
 }
 
 class MyHomePage extends StatefulWidget {
@@ -57,6 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Color? J2selectedColor = Colors.green;
   int selectedSequence = 1;
   String name = '';
+  double timer = 0;
 
   void handleNameChanged(String newName) {
     setState(() {
@@ -74,6 +76,11 @@ class _MyHomePageState extends State<MyHomePage> {
       selectedSequence = cant;
     });
   }
+  void handleTimerChanged(double time){
+    setState(() {
+      timer = time;
+    });
+  }
 
   void startGame() {
     setState(() {
@@ -81,6 +88,8 @@ class _MyHomePageState extends State<MyHomePage> {
       selectedIndex = 1;
     });
   }
+
+
 
   void exitGame() {
     showDialog(
@@ -122,6 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
           onNameChanged: handleNameChanged,
           onColorChanged: handleColorChanged,
           onCantSequencesChanged: handleCantSequencesChanged,
+          onTimerChanged: handleTimerChanged,
         );
         break;
       case 1:
@@ -130,6 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
           J2selectedColor: J2selectedColor,
           selectedSequence: selectedSequence,
           name: name,
+          timer: timer,
         );
         break;
       default:
@@ -173,8 +184,9 @@ class GeneratorPage extends StatefulWidget {
   final Function(String) onNameChanged;
   final Function(Color?, Color?) onColorChanged;
   final Function(int) onCantSequencesChanged;
+  final Function(double) onTimerChanged;
 
-  const GeneratorPage({Key? key, required this.onStartGame, required this.onNameChanged, required this.onColorChanged, required this.onCantSequencesChanged}) : super(key: key);
+  const GeneratorPage({Key? key, required this.onStartGame, required this.onNameChanged, required this.onColorChanged, required this.onCantSequencesChanged, required this.onTimerChanged}) : super(key: key);
 
   @override
   State<GeneratorPage> createState() => _GeneratorPageState();
@@ -183,7 +195,9 @@ class GeneratorPage extends StatefulWidget {
 class _GeneratorPageState extends State<GeneratorPage> {
   TextEditingController _nameController = TextEditingController();
   int selectedSequence = 1;
-  String alertaNombre = "";
+  bool nombreVacio = false;
+  double _currentSliderValue = 60;
+
 
 
   @override
@@ -229,6 +243,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
                 widget.onNameChanged(value);
               },
             ),
+            if(nombreVacio) Text("El nombre no puede estar vacio", style: TextStyle(color: Colors.red) ,),
             SizedBox(height: 20),
             ColorSelector(
               onColorsSelected: (Color? color1, Color? color2){
@@ -236,6 +251,19 @@ class _GeneratorPageState extends State<GeneratorPage> {
               },
             ),
             SizedBox(height: 20), // Espacio entre la caja de texto y el botón
+            Text("Turn time:"),
+            Slider(
+              value: _currentSliderValue,
+              max: 120,
+              divisions: 12,
+              label: "${_currentSliderValue.round().toString()}s",
+              onChanged: (double value) {
+                widget.onTimerChanged(value);
+                setState(() {
+                  _currentSliderValue = value;
+                });
+              },
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -265,10 +293,11 @@ class _GeneratorPageState extends State<GeneratorPage> {
               onPressed: () {
                 String name = _nameController.text.trim(); // Obtener el nombre ingresado y eliminar espacios en blanco al inicio y al final
                 if (name.isNotEmpty) { // Verificar que el nombre no esté vacío
-                  print('Nombre ingresado: $name'); // Imprimir el nombre en la consola
                   widget.onStartGame();
                 } else {
-                  print('El nombre no puede estar vacío');
+                  setState(() {
+                    nombreVacio = true;
+                  });
                 }
               },
               child: const Text("Play"),
@@ -369,3 +398,45 @@ class _ColorSelectorState extends State<ColorSelector> {
     );
   }
 }
+
+
+class SliderApp extends StatelessWidget {
+  const SliderApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: SliderExample(),
+    );
+  }
+}
+
+class SliderExample extends StatefulWidget {
+  const SliderExample({super.key});
+
+  @override
+  State<SliderExample> createState() => _SliderExampleState();
+}
+
+class _SliderExampleState extends State<SliderExample> {
+  double _currentSliderValue = 20;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Slider')),
+      body: Slider(
+        value: _currentSliderValue,
+        max: 100,
+        divisions: 5,
+        label: _currentSliderValue.round().toString(),
+        onChanged: (double value) {
+          setState(() {
+            _currentSliderValue = value;
+          });
+        },
+      ),
+    );
+  }
+}
+
