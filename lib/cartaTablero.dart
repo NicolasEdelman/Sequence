@@ -34,62 +34,48 @@ class _CartaTableroState extends State<CartaTablero> {
   }
 
   Widget _buildCarta() {
-    IconData? icono;
-    Color colorIcono;
     double sizeNumber;
-    double sizeIcon;
+    String imagePath = "";
     switch (widget.triplet.palo) {
       case "Picas":
-        icono = Icons.spa;
-        colorIcono = Colors.black;
         sizeNumber = 10;
-        sizeIcon = 15;
+        imagePath = "assets/images/Picas.png";
         break;
       case "Trebol":
-        icono = Icons.grass;
-        colorIcono = Colors.black;
         sizeNumber = 10;
-        sizeIcon = 15;
+        imagePath = "assets/images/Trebol.png";
         break;
       case "Corazon":
-        icono = Icons.favorite;
-        colorIcono = Colors.red;
         sizeNumber = 10;
-        sizeIcon = 15;
+        imagePath = "assets/images/Corazon.png";
         break;
       case "Joker":
-        icono = Icons.face;
-        colorIcono = Colors.lightBlue;
         sizeNumber = 1;
-        sizeIcon = 20;
+        imagePath = "assets/images/Joker.png";
         break;
       case "Diamante":
-        icono = Icons.diamond;
-        colorIcono = Colors.red;
         sizeNumber = 10;
-        sizeIcon = 15;
+        imagePath = "assets/images/Diamante.png";
         break;
       default:
-        icono = null;
-        colorIcono = Colors.black;
         sizeNumber = 10;
-        sizeIcon = 15;
+        imagePath = "";
         break;
     }
 
     switch (widget.triplet.fichaPuesta) {
       case 0:
-        return _buildCelda(Colors.grey[200]!, icono, colorIcono, sizeNumber, sizeIcon);
+        return _buildCelda(Colors.grey[200]!, imagePath,  sizeNumber, );
       case 1:
-        return _buildCelda(widget.J1Color ?? Colors.white, icono, colorIcono, sizeNumber, sizeIcon);
+        return _buildCelda(widget.J1Color ?? Colors.white, imagePath, sizeNumber);
       case 2:
-        return _buildCelda(widget.J2Color ?? Colors.white, icono, colorIcono, sizeNumber, sizeIcon);
+        return _buildCelda(widget.J2Color ?? Colors.white, imagePath, sizeNumber );
       default:
-        return _buildCelda(Colors.grey[200]!, icono, colorIcono, sizeNumber, sizeIcon);
+        return _buildCelda(Colors.grey[200]!, imagePath, sizeNumber);
     }
   }
 
-  Widget _buildCelda(Color colorCelda, IconData? icono, Color colorIcono, double sizeNumber, double sizeIcon) {
+  Widget _buildCelda(Color colorCelda, String imagePath, double sizeNumber) {
     return Container(
       margin: EdgeInsets.all(1), // Espacio entre las celdas
       padding: EdgeInsets.symmetric(vertical: 2),
@@ -99,7 +85,7 @@ class _CartaTableroState extends State<CartaTablero> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(widget.triplet.numeroCarta, style: TextStyle(fontSize: sizeNumber),), // Mostrar el entero de la matriz
-            Icon(icono, size: sizeIcon, color: colorIcono,), // Mostrar el palo
+            Image.asset(imagePath, width: 15, height: 15,), // Mostrar el palo
           ],
         ),
       ),

@@ -83,9 +83,18 @@ class _TableroPageState extends State<TableroPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text("$name vs la maquina"),
+        Padding(padding: EdgeInsets.only(top: 10),),
         Text("Se juega a $selectedSequence sequences"),
-        Padding(padding: EdgeInsets.only(top: 70),),
+        Padding(padding: EdgeInsets.only(top: 30),),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            cartaMano(carta: Carta("0", ""), index: -1, miTurno: miTurno),
+            cartaMano(carta: ultimaCartaTirada, index: -1, miTurno: miTurno),
+          ],
+        ),
+
+        Padding(padding: EdgeInsets.only(top: 5),),
         Expanded(
             child:GridView.builder(
               itemCount: 10 * 10, // Total de celdas en el tablero
@@ -308,6 +317,7 @@ class _TableroPageState extends State<TableroPage> {
 
     setState(() {
       miTurno = false;
+      ultimaCartaTirada = Carta(cartaPresionada.numero, cartaPresionada.palo);
       if(cartaPresionada.numero == "Remove")
         matriz[filaCartaSeleccionadaTablero][columnaCartaSeleccionadaTablero] = Triplet(0, cartaSeleccionadaTablero.numero.toString(), cartaSeleccionadaTablero.palo);
       else{matriz[filaCartaSeleccionadaTablero][columnaCartaSeleccionadaTablero] = Triplet(1, cartaSeleccionadaTablero.numero.toString(), cartaSeleccionadaTablero.palo);}
@@ -341,7 +351,7 @@ class _TableroPageState extends State<TableroPage> {
                 matriz[i][j] = Triplet(2, numeroCarta.toString(), paloCarta);
                 ultimaCartaTirada = Carta(numeroCarta, paloCarta);
                 cartasEnManoOponente[6] = mazo.darPrimerCarta();
-                estado = "Tu oponente tiró el ${numeroCarta} de ${paloCarta}";
+                estado = "";
               });
             }
           }
@@ -602,60 +612,51 @@ class _TableroPageState extends State<TableroPage> {
 
 
   Widget cartaMano({required Carta carta, required int index, required bool miTurno}) {
-    IconData? icono;
-    Color colorIcono;
     Color? colorCelda;
     double sizeNumber;
-    double sizeIcon;
     double scaleFactor = 1.0;
+    String imagePath = "";
 
     switch(carta.palo){
       case "Picas":
-        icono = Icons.spa;
-        colorIcono = Colors.black;
         colorCelda = Colors.grey[300];
         sizeNumber = 20;
-        sizeIcon = 20;
+        imagePath = "assets/images/Picas.png";
         break;
       case "Trebol":
-        icono = Icons.grass;
-        colorIcono = Colors.black;
         colorCelda = Colors.grey[300];
         sizeNumber = 20;
-        sizeIcon = 20;
+        imagePath = "assets/images/Trebol.png";
         break;
       case "Corazon":
-        icono = Icons.favorite;
-        colorIcono = Colors.red;
         colorCelda = Colors.grey[300];
         sizeNumber = 20;
-        sizeIcon = 20;
+        imagePath = "assets/images/Corazon.png";
         break;
       case "Diamante":
-        icono = Icons.diamond;
-        colorIcono = Colors.red;
         colorCelda = Colors.grey[300];
         sizeNumber = 20;
-        sizeIcon = 20;
+        imagePath = "assets/images/Diamante.png";
         break;
       default:
-        icono = Icons.ac_unit;
-        colorIcono = Colors.black;
-        colorCelda = Colors.blue;
+        colorCelda = J1selectedColor;
         sizeNumber = 0;
-        sizeIcon = 20;
+        imagePath = "assets/images/poker.png";
         break;
     }
     if(carta.numero == "Wild" || carta.numero == "Remove"){
       sizeNumber = 12;
     }
-    if(cartaPresionada == carta){
+    if(cartaPresionada == carta && index != -1){
       scaleFactor = 1.3;
       colorCelda = Colors.grey[400];
     }
+    if(index == -1){
+      scaleFactor = 0.9;
+    }
     return GestureDetector(
       onTap: (){
-        if(miTurno){
+        if(miTurno && index != -1){
           setState(() {
             cartaPresionada = carta;
             poscartaPresionada = index;
@@ -665,21 +666,37 @@ class _TableroPageState extends State<TableroPage> {
           }
         }
       },
-      child: Container(
-        width: 55*scaleFactor,
-        height: 50*scaleFactor,
-        color: colorCelda,
-        margin: EdgeInsets.all(2),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(carta.numero, style: TextStyle(fontSize: sizeNumber*scaleFactor),), // Mostrar el entero de la matriz
-              Icon(icono,  color: colorIcono, size: sizeIcon*scaleFactor,), // Mostrar el palo
-            ],
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: J1selectedColor!, // Color del borde amarillo
+            width: 0.5, // Grosor del borde
+          ),
+        ),
+        child: Container(
+          width: 55 * scaleFactor,
+          height: 50 * scaleFactor,
+          color: colorCelda,
+          margin: EdgeInsets.all(2),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  carta.numero,
+                  style: TextStyle(fontSize: sizeNumber * scaleFactor),
+                ),
+                Image.asset(
+                  imagePath,
+                  width: 20 * scaleFactor,
+                  height: 20 * scaleFactor,
+                ),
+              ],
+            ),
           ),
         ),
       ),
+
     );
   }
 }

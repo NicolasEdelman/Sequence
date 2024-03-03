@@ -38,7 +38,7 @@ class MyAppState extends ChangeNotifier{
   Color? J2selectedColor;
   int selectedSequence = 1;
   String name = '';
-  double? timer;
+  double? timer = 60;
 }
 
 class MyHomePage extends StatefulWidget {
@@ -58,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Color? J2selectedColor = Colors.green;
   int selectedSequence = 1;
   String name = '';
-  double timer = 0;
+  double timer = 60;
 
   void handleNameChanged(String newName) {
     setState(() {
