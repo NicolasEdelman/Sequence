@@ -3,6 +3,7 @@ import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'Mazo.dart';
 import 'cartaTablero.dart';
+import 'Oponente.dart';
 
 void main() {
   runApp(
@@ -66,6 +67,7 @@ class _TableroPageState extends State<TableroPage> {
   Carta ultimaCartaTirada = Carta("0", "");
   StreamController<int> _timerController = StreamController<int>();
 
+  int nivelOponente = 1;
 
 
   _TableroPageState({
@@ -190,14 +192,27 @@ class _TableroPageState extends State<TableroPage> {
       }
     });
   }
+  void setearNivelOponente(Oponente oponente){
+    switch (nivelOponente){
+      case 1:
+        oponente.setStrategy(TirarCartaStrategyN1());
+        break;
+      case 2:
+        oponente.setStrategy(TirarCartaStrategyN2());
+        break;
+    }
+  }
   void jugar() async{
     construirTablero();
+    Oponente oponente = Oponente(nivelOponente);
+    setearNivelOponente(oponente);
     setState(() {
       mazo = Mazo();
       estado = "Empezo el juego!";
+      enJuego = true;
+      cartasEnManoOponente = [];
+      ultimaCartaTirada = Carta("", "");
     });
-    print("Empezo el juegooo");
-    enJuego = true;
     repartirCartas();
     while(enJuego){
       await turnoJugador1();
@@ -208,7 +223,7 @@ class _TableroPageState extends State<TableroPage> {
         });
       }
       else{
-        await turnoJugador2();
+        await turnoJugador2(oponente);
         if(revisarGanador(2, selectedSequence)){
           setState(() {
             enJuego = false;
@@ -243,7 +258,7 @@ class _TableroPageState extends State<TableroPage> {
       miTurno = true;
     });
 
-    print("Es mi turno y estoy esperando que aprete una carta...");
+    //print("Es mi turno y estoy esperando que aprete una carta...");
 
     while (cartaPresionada.numero == "0") {
       await Future.delayed(Duration(milliseconds: 100));
@@ -313,7 +328,7 @@ class _TableroPageState extends State<TableroPage> {
 
 
   void tirarCarta(){
-    print("$name, apoyaste el ${cartaSeleccionadaTablero.numero} de ${cartaSeleccionadaTablero.palo} en el tablero que esta en la fila ${filaCartaSeleccionadaTablero} y columna ${columnaCartaSeleccionadaTablero}");
+    //print("$name, apoyaste el ${cartaSeleccionadaTablero.numero} de ${cartaSeleccionadaTablero.palo} en el tablero que esta en la fila ${filaCartaSeleccionadaTablero} y columna ${columnaCartaSeleccionadaTablero}");
 
     setState(() {
       miTurno = false;
@@ -330,41 +345,31 @@ class _TableroPageState extends State<TableroPage> {
     });
   }
 
-  Future<void> turnoJugador2() async{
-    print("Juega el jugador 2");
+  Future<void> turnoJugador2(Oponente oponente) async{
     await Future.delayed(Duration(milliseconds: 2000));
-    String numeroCarta = cartasEnManoOponente[0].numero;
-    String paloCarta = cartasEnManoOponente[0].palo;
-    bool deadCard = true;
-    bool puseCarta = false;
-    for (int i=0; i<10; i++){
-      for (int j=0; j<10; j++){
-        if(!puseCarta){
-          if(matriz[i][j].fichaPuesta == 0){
-            if(matriz[i][j].numeroCarta == numeroCarta && matriz[i][j].palo == paloCarta){
-              for(int i = 0; i <6; i++){
-                cartasEnManoOponente[i] = cartasEnManoOponente[i+1];
-              }
-              deadCard = false;
-              puseCarta = true;
-              setState(() {
-                matriz[i][j] = Triplet(2, numeroCarta.toString(), paloCarta);
-                ultimaCartaTirada = Carta(numeroCarta, paloCarta);
-                cartasEnManoOponente[6] = mazo.darPrimerCarta();
-                estado = "";
-              });
-            }
-          }
-        }
+    oponente.ActualizarMatriz(matriz);
+    for (Carta carta in cartasEnManoOponente){
+      if(tengoDeadCard(carta) && carta.numero != "Wild" && carta.numero != "Remove"){
+        cartasEnManoOponente.remove(carta);
+        entregarCarta(2);
       }
     }
-    if(deadCard){
-      for(int i = 0; i <5; i++){
-        cartasEnManoOponente[i] = cartasEnManoOponente[i+1];
-      }
-      turnoJugador2();
+    oponente.ActualizarCartas(cartasEnManoOponente);
+    print("Tengo ${oponente.cartasEnMano.length} cartas en mano");
+    var retorno = oponente.tirarCarta();
+    if(oponente.cartasEnMano.length <= 5){
+      entregarCarta(2);
+      print("Tuvo dead card y ya le agregue una carta");
+      retorno = oponente.tirarCarta();
     }
+    setState(() {
+      matriz = retorno.tablero;
+      ultimaCartaTirada = retorno.carta;
+      estado = "";
+    });
+    entregarCarta(2);
   }
+
 
   bool tengoDeadCard(Carta carta){
     for (int i=0; i<10; i++){
@@ -382,7 +387,9 @@ class _TableroPageState extends State<TableroPage> {
       if(jugador == 1){
         cartasEnManoMia.add(mazo.darPrimerCarta());
       }
-      if(jugador == 2){cartasEnManoOponente.add(mazo.darPrimerCarta());}
+      if(jugador == 2){
+        cartasEnManoOponente.add(mazo.darPrimerCarta());
+      }
     });
   }
 
