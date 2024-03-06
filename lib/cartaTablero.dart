@@ -94,7 +94,7 @@ class _CartaTableroState extends State<CartaTablero> {
 }
 
 class Triplet {
-  final int fichaPuesta;
+  int fichaPuesta;
   final String numeroCarta;
   final String palo;
 

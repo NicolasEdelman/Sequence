@@ -54,9 +54,10 @@ class _TableroPageState extends State<TableroPage> {
   late List<List<Triplet>> matriz =  List.generate(10, (_) => List<Triplet>.generate(10, (_) => Triplet(0, "0", ""),),);
   var mazo =  Mazo();
   List<Carta> cartasEnManoMia = [Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),];
+  List<Carta> cartasEnManoOponente = [Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),];
   Carta cartaPresionada = Carta("0", '');
   int poscartaPresionada =0;
-  List<Carta> cartasEnManoOponente = [];
+
   List<int> puntajes = [0, 0];
   bool enJuego = false;
   bool miTurno = false;
@@ -67,7 +68,7 @@ class _TableroPageState extends State<TableroPage> {
   Carta ultimaCartaTirada = Carta("0", "");
   StreamController<int> _timerController = StreamController<int>();
 
-  int nivelOponente = 1;
+  int nivelOponente = 2;
 
 
   _TableroPageState({
@@ -86,6 +87,18 @@ class _TableroPageState extends State<TableroPage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Padding(padding: EdgeInsets.only(top: 10),),
+        Container(
+          height: 90,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: 7,
+            itemBuilder: (context, index) {
+              Carta carta = cartasEnManoOponente[index];
+              return cartaMano(carta: carta, index: index, miTurno: miTurno);
+            },
+          ),
+        ),
+
         Text("Se juega a $selectedSequence sequences"),
         Padding(padding: EdgeInsets.only(top: 30),),
         Row(
@@ -192,20 +205,10 @@ class _TableroPageState extends State<TableroPage> {
       }
     });
   }
-  void setearNivelOponente(Oponente oponente){
-    switch (nivelOponente){
-      case 1:
-        oponente.setStrategy(TirarCartaStrategyN1());
-        break;
-      case 2:
-        oponente.setStrategy(TirarCartaStrategyN2());
-        break;
-    }
-  }
+
   void jugar() async{
     construirTablero();
     Oponente oponente = Oponente(nivelOponente);
-    setearNivelOponente(oponente);
     setState(() {
       mazo = Mazo();
       estado = "Empezo el juego!";
@@ -357,11 +360,6 @@ class _TableroPageState extends State<TableroPage> {
     oponente.ActualizarCartas(cartasEnManoOponente);
     print("Tengo ${oponente.cartasEnMano.length} cartas en mano");
     var retorno = oponente.tirarCarta();
-    if(oponente.cartasEnMano.length <= 5){
-      entregarCarta(2);
-      print("Tuvo dead card y ya le agregue una carta");
-      retorno = oponente.tirarCarta();
-    }
     setState(() {
       matriz = retorno.tablero;
       ultimaCartaTirada = retorno.carta;
@@ -589,7 +587,7 @@ class _TableroPageState extends State<TableroPage> {
     ];
     matriz[7] = [
       Triplet(0, "K", "Trebol"),
-      Triplet(0, "8", "Picas"),
+      Triplet(1, "8", "Picas"),
       Triplet(0, "10", "Trebol"),
       Triplet(0, "Q", "Trebol"),
       Triplet(0, "K", "Trebol"),
