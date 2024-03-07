@@ -121,6 +121,44 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void panelReglas(){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: SingleChildScrollView(
+            child: Dialog.fullscreen(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset("assets/images/Reglas.png"),
+                ],
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            Container(
+              height: 40,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Cierra el cuadro de diálogo
+                    },
+                    child: Text('Entendido'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget page;
@@ -150,20 +188,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        actions: isPlaying
-            ? [
+        leading: isPlaying
+            ? IconButton(
+          icon: Icon(Icons.exit_to_app),
+          tooltip: 'Salir del juego',
+          onPressed: exitGame,
+        )
+            : IconButton(
+          icon: Icon(Icons.menu),
+          tooltip: 'Menú',
+          onPressed: null,
+        ),
+        actions: [
           IconButton(
-            icon: Icon(Icons.exit_to_app),
-            tooltip: 'Salir del juego',
-            onPressed: exitGame,
-          )
-        ]
-            : [
-          IconButton(
-            icon: Icon(Icons.menu),
-            tooltip: 'Menu',
-            onPressed: null,
-          )
+            icon: Icon(Icons.help_outline),
+            tooltip: 'Ayuda',
+            onPressed: panelReglas,
+          ),
         ],
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
