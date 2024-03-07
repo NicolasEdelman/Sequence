@@ -21,14 +21,14 @@ class TableroPage extends StatefulWidget {
   final Color? J2selectedColor;
   final int selectedSequence;
   final String name;
-  final double timer;
+  final double level;
 
   const TableroPage({
     required this.J1selectedColor,
     required this.J2selectedColor,
     required this.selectedSequence,
     required this.name,
-    required this.timer,
+    required this.level,
   });
 
   @override
@@ -37,7 +37,7 @@ class TableroPage extends StatefulWidget {
     J2selectedColor: J2selectedColor,
     selectedSequence: selectedSequence,
     name: name,
-    timer: timer,
+    level: level,
   );
 
 }
@@ -48,7 +48,7 @@ class _TableroPageState extends State<TableroPage> {
   Color? J2selectedColor;
   int selectedSequence;
   String name;
-  double timer;
+  double level;
 
   Completer<void> _completer = Completer<void>();
   late List<List<Triplet>> matriz =  List.generate(10, (_) => List<Triplet>.generate(10, (_) => Triplet(0, "0", ""),),);
@@ -68,7 +68,7 @@ class _TableroPageState extends State<TableroPage> {
   Carta ultimaCartaTirada = Carta("0", "");
   StreamController<int> _timerController = StreamController<int>();
 
-  int nivelOponente = 2;
+  //int nivelOponente = 2;
 
 
   _TableroPageState({
@@ -76,7 +76,7 @@ class _TableroPageState extends State<TableroPage> {
     required this.J2selectedColor,
     required this.selectedSequence,
     required this.name,
-    required this.timer}) {
+    required this.level}) {
     matriz = construirTablero();
   }
 
@@ -208,6 +208,7 @@ class _TableroPageState extends State<TableroPage> {
 
   void jugar() async{
     construirTablero();
+    int nivelOponente = level.toInt();
     Oponente oponente = Oponente(nivelOponente);
     setState(() {
       mazo = Mazo();
@@ -215,6 +216,7 @@ class _TableroPageState extends State<TableroPage> {
       enJuego = true;
       cartasEnManoOponente = [];
       ultimaCartaTirada = Carta("", "");
+      level = oponente.tiempoTurnoUsuario.toDouble();
     });
     repartirCartas();
     while(enJuego){
@@ -239,7 +241,7 @@ class _TableroPageState extends State<TableroPage> {
 
   Future<void> turnoJugador1() async {
     miTurno = true;
-    int tiempoRestante = timer.toInt(); // Establece el tiempo inicial
+    int tiempoRestante = level.toInt(); // Establece el tiempo inicial
     _timerController.add(tiempoRestante); // Emite el valor inicial
     Timer timerTurn = Timer.periodic(Duration(seconds: 1), (timerTurn) {
       setState(() {
@@ -396,7 +398,9 @@ class _TableroPageState extends State<TableroPage> {
       mazo.mezclarMazo();
       cartasEnManoMia = [];
     });
-    for (int i=0; i<=6; i++){
+    entregarCarta(1);
+    cartasEnManoOponente.add(Carta("Wild", "Corazon"));
+    for (int i=0; i<=5; i++){
       entregarCarta(1);
       entregarCarta(2);
     }
@@ -575,11 +579,11 @@ class _TableroPageState extends State<TableroPage> {
     ];
     matriz[6] = [
       Triplet(0, "Q", "Trebol"),
-      Triplet(0, "9", "Picas"),
+      Triplet(2, "9", "Picas"),
       Triplet(0, "9", "Trebol"),
-      Triplet(0, "8", "Corazon"),
-      Triplet(0, "9", "Corazon"),
-      Triplet(0, "10", "Corazon"),
+      Triplet(2, "8", "Corazon"),
+      Triplet(2, "9", "Corazon"),
+      Triplet(2, "10", "Corazon"),
       Triplet(0, "Q", "Corazon"),
       Triplet(0, "Q", "Diamante"),
       Triplet(0, "5", "Corazon"),
@@ -587,7 +591,7 @@ class _TableroPageState extends State<TableroPage> {
     ];
     matriz[7] = [
       Triplet(0, "K", "Trebol"),
-      Triplet(1, "8", "Picas"),
+      Triplet(0, "8", "Picas"),
       Triplet(0, "10", "Trebol"),
       Triplet(0, "Q", "Trebol"),
       Triplet(0, "K", "Trebol"),

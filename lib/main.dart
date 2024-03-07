@@ -76,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
       selectedSequence = cant;
     });
   }
-  void handleTimerChanged(double time){
+  void handleLevelChanged(double time){
     setState(() {
       timer = time;
     });
@@ -131,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
           onNameChanged: handleNameChanged,
           onColorChanged: handleColorChanged,
           onCantSequencesChanged: handleCantSequencesChanged,
-          onTimerChanged: handleTimerChanged,
+          onLevelChanged: handleLevelChanged,
         );
         break;
       case 1:
@@ -140,7 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
           J2selectedColor: J2selectedColor,
           selectedSequence: selectedSequence,
           name: name,
-          timer: timer,
+          level: timer,
         );
         break;
       default:
@@ -184,9 +184,9 @@ class GeneratorPage extends StatefulWidget {
   final Function(String) onNameChanged;
   final Function(Color?, Color?) onColorChanged;
   final Function(int) onCantSequencesChanged;
-  final Function(double) onTimerChanged;
+  final Function(double) onLevelChanged;
 
-  const GeneratorPage({Key? key, required this.onStartGame, required this.onNameChanged, required this.onColorChanged, required this.onCantSequencesChanged, required this.onTimerChanged}) : super(key: key);
+  const GeneratorPage({Key? key, required this.onStartGame, required this.onNameChanged, required this.onColorChanged, required this.onCantSequencesChanged, required this.onLevelChanged}) : super(key: key);
 
   @override
   State<GeneratorPage> createState() => _GeneratorPageState();
@@ -196,7 +196,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
   TextEditingController _nameController = TextEditingController();
   int selectedSequence = 1;
   bool nombreVacio = false;
-  double _currentSliderValue = 60;
+  double _currentSliderValue = 1;
 
 
 
@@ -251,14 +251,14 @@ class _GeneratorPageState extends State<GeneratorPage> {
               },
             ),
             SizedBox(height: 20), // Espacio entre la caja de texto y el botón
-            Text("Turn time:"),
+            Text("Nivel:"),
             Slider(
               value: _currentSliderValue,
-              max: 120,
-              divisions: 12,
-              label: "${_currentSliderValue.round().toString()}s",
+              max: 8,
+              divisions: 8,
+              label: _currentSliderValue.round() != 0 ? "${_currentSliderValue.round()}" : "Reglas",
               onChanged: (double value) {
-                widget.onTimerChanged(value);
+                widget.onLevelChanged(value);
                 setState(() {
                   _currentSliderValue = value;
                 });
@@ -292,7 +292,8 @@ class _GeneratorPageState extends State<GeneratorPage> {
             ElevatedButton(
               onPressed: () {
                 String name = _nameController.text.trim(); // Obtener el nombre ingresado y eliminar espacios en blanco al inicio y al final
-                if (name.isNotEmpty) { // Verificar que el nombre no esté vacío
+
+                if (name.isNotEmpty && _currentSliderValue.round() != 0) { // Verificar que el nombre no esté vacío
                   widget.onStartGame();
                 } else {
                   setState(() {
@@ -398,45 +399,3 @@ class _ColorSelectorState extends State<ColorSelector> {
     );
   }
 }
-
-
-class SliderApp extends StatelessWidget {
-  const SliderApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: SliderExample(),
-    );
-  }
-}
-
-class SliderExample extends StatefulWidget {
-  const SliderExample({super.key});
-
-  @override
-  State<SliderExample> createState() => _SliderExampleState();
-}
-
-class _SliderExampleState extends State<SliderExample> {
-  double _currentSliderValue = 20;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Slider')),
-      body: Slider(
-        value: _currentSliderValue,
-        max: 100,
-        divisions: 5,
-        label: _currentSliderValue.round().toString(),
-        onChanged: (double value) {
-          setState(() {
-            _currentSliderValue = value;
-          });
-        },
-      ),
-    );
-  }
-}
-

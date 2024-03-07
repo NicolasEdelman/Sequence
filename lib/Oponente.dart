@@ -5,6 +5,7 @@ import 'OponentStrategies/TirarCartaStrategyN2.dart';
 
 class Oponente{
   int Nivel = 0;
+  int tiempoTurnoUsuario = 0;
   List<Carta> cartasEnMano = [];
   List<List<Triplet>> matriz =  List.generate(10, (_) => List<Triplet>.generate(10, (_) => Triplet(0, "0", ""),),);
   Carta ultimaCartaTirada = Carta("", "");
@@ -12,8 +13,15 @@ class Oponente{
 
   Oponente(this.Nivel){
     switch (this.Nivel){
-      case 1: setStrategy(TirarCartaStrategyN1());
-      case 2: setStrategy(TirarCartaStrategyN2());
+      case 1: setStrategy(TirarCartaStrategyN1()); tiempoTurnoUsuario = 40;
+      case 2: setStrategy(TirarCartaStrategyN1()); tiempoTurnoUsuario = 30;
+      case 3: setStrategy(TirarCartaStrategyN1()); tiempoTurnoUsuario = 20;
+      case 4: setStrategy(TirarCartaStrategyN1()); tiempoTurnoUsuario = 10;
+
+      case 5: setStrategy(TirarCartaStrategyN2()); tiempoTurnoUsuario = 40;
+      case 6: setStrategy(TirarCartaStrategyN2()); tiempoTurnoUsuario = 30;
+      case 7: setStrategy(TirarCartaStrategyN2()); tiempoTurnoUsuario = 20;
+      case 8: setStrategy(TirarCartaStrategyN2()); tiempoTurnoUsuario = 10;
     }
   }
 
