@@ -88,19 +88,19 @@ class _TableroPageState extends State<TableroPage> {
       children: [
         Padding(padding: EdgeInsets.only(top: 10),),
         Container(
-          height: 90,
+          height: 60,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: 7,
             itemBuilder: (context, index) {
               Carta carta = cartasEnManoOponente[index];
-              return cartaMano(carta: carta, index: index, miTurno: miTurno);
+              return cartaMano(carta: Carta("", ""), index: index, miTurno: miTurno);
             },
           ),
         ),
 
         Text("Se juega a $selectedSequence sequences"),
-        Padding(padding: EdgeInsets.only(top: 30),),
+        Padding(padding: EdgeInsets.only(top: 10),),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -136,7 +136,7 @@ class _TableroPageState extends State<TableroPage> {
             )
             ),
         if(estado != "") Text(estado),
-        SizedBox(height: 30),
+        SizedBox(height: 10),
         if(!enJuego) ElevatedButton(onPressed: jugar, child: Text("Start")),
         if(miTurno)Text("Es tu turno!"),
 
@@ -398,9 +398,7 @@ class _TableroPageState extends State<TableroPage> {
       mazo.mezclarMazo();
       cartasEnManoMia = [];
     });
-    entregarCarta(1);
-    cartasEnManoOponente.add(Carta("Wild", "Corazon"));
-    for (int i=0; i<=5; i++){
+    for (int i=0; i<=6; i++){
       entregarCarta(1);
       entregarCarta(2);
     }
@@ -579,11 +577,11 @@ class _TableroPageState extends State<TableroPage> {
     ];
     matriz[6] = [
       Triplet(0, "Q", "Trebol"),
-      Triplet(2, "9", "Picas"),
+      Triplet(0, "9", "Picas"),
       Triplet(0, "9", "Trebol"),
-      Triplet(2, "8", "Corazon"),
-      Triplet(2, "9", "Corazon"),
-      Triplet(2, "10", "Corazon"),
+      Triplet(0, "8", "Corazon"),
+      Triplet(0, "9", "Corazon"),
+      Triplet(0, "10", "Corazon"),
       Triplet(0, "Q", "Corazon"),
       Triplet(0, "Q", "Diamante"),
       Triplet(0, "5", "Corazon"),
