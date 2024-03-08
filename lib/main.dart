@@ -4,10 +4,11 @@ import 'package:provider/provider.dart';
 import 'Tablero.dart';
 
 void main() {
+  var appState = MyAppState();
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => MyAppState()),
+        ChangeNotifierProvider(create: (_) => appState),
       ],
       child: const MyApp(),
     ),
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: '', subtitle: 'Hola verano',),
+      home: const MyHomePage(title: "", subtitle: 'Hola verano',),
 
     );
   }
@@ -39,6 +40,11 @@ class MyAppState extends ChangeNotifier{
   int selectedSequence = 1;
   String name = '';
   double? timer = 1;
+
+  void updatePlayerInfo(String playerName, double level){
+    name = playerName;
+    timer = level;
+  }
 }
 
 class MyHomePage extends StatefulWidget {
@@ -52,6 +58,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String _dynamicTitle = '';
   var selectedIndex = 0;
   bool isPlaying = false;
   Color? J1selectedColor = Colors.blue;
@@ -59,6 +66,14 @@ class _MyHomePageState extends State<MyHomePage> {
   int selectedSequence = 1;
   String name = '';
   double timer = 1;
+
+  MyAppState? appState;
+
+  @override
+  void initState(){
+    super.initState();
+    _dynamicTitle = widget.title;
+  }
 
   void handleNameChanged(String newName) {
     setState(() {
@@ -83,13 +98,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void startGame() {
-    setState(() {
-      isPlaying = true;
-      selectedIndex = 1;
-    });
+      setState(() {
+        //_dynamicTitle = '${appState!.name} - Nivel: ${appState!.timer}';
+        isPlaying = true;
+        selectedIndex = 1;
+      });
   }
-
-
 
   void exitGame() {
     showDialog(
@@ -109,8 +123,10 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.of(context).pop(); // Cierra el cuadro de diálogo
                 setState(() {
+                  _dynamicTitle = widget.title;
                   isPlaying = false;
                   selectedIndex = 0;
+                  appState?.updatePlayerInfo('', 1);
                 });
               },
               child: Text('Salir'),
@@ -120,6 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
       },
     );
   }
+
 
   void panelReglas(){
     showDialog(
@@ -161,9 +178,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    String titlebar = "";
     Widget page;
     switch (selectedIndex){
       case 0:
+        titlebar = "";
         page = GeneratorPage(
           onStartGame: startGame,
           onNameChanged: handleNameChanged,
@@ -173,6 +192,7 @@ class _MyHomePageState extends State<MyHomePage> {
         );
         break;
       case 1:
+        titlebar = "${name} - Nivel ${timer.toInt()}";
         page = TableroPage(
           J1selectedColor: J1selectedColor,
           J2selectedColor: J2selectedColor,
@@ -188,6 +208,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
+        title: Text(titlebar),
         leading: isPlaying
             ? IconButton(
           icon: Icon(Icons.exit_to_app),
@@ -207,7 +228,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
       ),
       body: Column(
         children: [
@@ -342,7 +362,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
                         });
                       },
                     ),
-                    Text('"2 Secuencias"', style: TextStyle(color: Colors.white),),
+                    Text('2 Secuencias', style: TextStyle(color: Colors.white),),
                   ],
                 ),
                 SizedBox(height: 20),

@@ -57,9 +57,10 @@ class _TableroPageState extends State<TableroPage> {
   List<Carta> cartasEnManoOponente = [Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),];
   Carta cartaPresionada = Carta("0", '');
   int poscartaPresionada =0;
-
   List<int> puntajes = [0, 0];
-  bool enJuego = false;
+  bool empezoJuego = false;
+  bool ganeJuego = false;
+  bool perdiJuego = false;
   bool miTurno = false;
   Carta cartaSeleccionadaTablero = Carta("-1", '');
   int filaCartaSeleccionadaTablero = 0;
@@ -67,6 +68,7 @@ class _TableroPageState extends State<TableroPage> {
   String estado = "";
   Carta ultimaCartaTirada = Carta("0", "");
   StreamController<int> _timerController = StreamController<int>();
+  int nivelOponente = 0;
 
 
   _TableroPageState({
@@ -141,9 +143,22 @@ class _TableroPageState extends State<TableroPage> {
                   },
                 )
             ),
-            if(estado != "") Text(estado),
+            if(estado != "" && !ganeJuego && !perdiJuego) Text(estado),
             SizedBox(height: 10),
-            if(!enJuego) ElevatedButton(onPressed: jugar, child: Text("Start")),
+            if(!empezoJuego) ElevatedButton(onPressed: jugarPrimeraVez, child: Text("Start")),
+            if(ganeJuego)Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(onPressed: reiniciar, child: Text("Volver a intentar")),
+                ElevatedButton(onPressed: null, child: Text("Siguiente nivel"))
+              ],
+            ),
+            if(perdiJuego)Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(onPressed: reiniciar, child: Text("Volver a intentar")),
+              ],
+            ),
             if(miTurno)Text("Es tu turno!"),
 
             StreamBuilder<int>(
@@ -213,34 +228,48 @@ class _TableroPageState extends State<TableroPage> {
       }
     });
   }
+  void reiniciar() {
+    jugar();
+  }
+  void jugarPrimeraVez(){
+    nivelOponente = level.toInt();
+    jugar();
+  }
 
   void jugar() async{
     construirTablero();
-    int nivelOponente = level.toInt();
     Oponente oponente = Oponente(nivelOponente);
+    int niv = oponente.Nivel;
+    print("Soy el oponente de nivel $niv");
     setState(() {
       mazo = Mazo();
       estado = "Empezo el juego!";
-      enJuego = true;
+      empezoJuego = true;
+      ganeJuego = false;
+      perdiJuego = false;
       cartasEnManoOponente = [];
       ultimaCartaTirada = Carta("", "");
       level = oponente.tiempoTurnoUsuario.toDouble();
     });
     repartirCartas();
-    while(enJuego){
+    while(!ganeJuego && !perdiJuego){
       await turnoJugador1();
       if(revisarGanador(1, selectedSequence)){
         setState(() {
-          enJuego = false;
+          //empezoJuego = false;
+          ganeJuego = true;
           estado = "GANASTEEEE";
+          print("gane y el nivel recien jugado es ${nivelOponente}");
         });
       }
       else{
         await turnoJugador2(oponente);
         if(revisarGanador(2, selectedSequence)){
           setState(() {
-            enJuego = false;
+            //empezoJuego = false;
+            perdiJuego = true;
             estado = "PERDISTEEE";
+            print("perdi y el nivel recien jugado es ${nivelOponente}");
           });
         }
       }
@@ -368,7 +397,7 @@ class _TableroPageState extends State<TableroPage> {
       }
     }
     oponente.ActualizarCartas(cartasEnManoOponente);
-    print("Tengo ${oponente.cartasEnMano.length} cartas en mano");
+    //print("Tengo ${oponente.cartasEnMano.length} cartas en mano");
     var retorno = oponente.tirarCarta();
     setState(() {
       matriz = retorno.tablero;
