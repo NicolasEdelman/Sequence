@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'La primer App del Ticu', subtitle: 'Hola verano',),
+      home: const MyHomePage(title: '', subtitle: 'Hola verano',),
 
     );
   }
@@ -38,7 +38,7 @@ class MyAppState extends ChangeNotifier{
   Color? J2selectedColor;
   int selectedSequence = 1;
   String name = '';
-  double? timer = 60;
+  double? timer = 1;
 }
 
 class MyHomePage extends StatefulWidget {
@@ -58,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Color? J2selectedColor = Colors.green;
   int selectedSequence = 1;
   String name = '';
-  double timer = 60;
+  double timer = 1;
 
   void handleNameChanged(String newName) {
     setState(() {
@@ -249,102 +249,123 @@ class _GeneratorPageState extends State<GeneratorPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            //Text("EL SEQUENCITO", style: TextStyle(fontSize: 40, color: Colors.lightBlue, fontWeight: FontWeight.bold,)),
-            Text(
-              "EL SEQUENCITO",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.blue,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Roboto', // Cambia la fuente a una más atractiva
-                shadows: [
-                  Shadow(
-                    blurRadius: 2,
-                    color: Colors.black.withOpacity(0.5),
-                    offset: Offset(1, 2),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                hintText: 'Ingrese su nombre', // Texto de sugerencia
-                labelText: 'Nombre', // Etiqueta del TextField
-                border: OutlineInputBorder(), // Estilo del borde
-              ),
-              onChanged: (value){
-                widget.onNameChanged(value);
-              },
-            ),
-            if(nombreVacio) Text("El nombre no puede estar vacio", style: TextStyle(color: Colors.red) ,),
-            SizedBox(height: 20),
-            ColorSelector(
-              onColorsSelected: (Color? color1, Color? color2){
-                widget.onColorChanged(color1, color2);
-              },
-            ),
-            SizedBox(height: 20), // Espacio entre la caja de texto y el botón
-            Text("Nivel:"),
-            Slider(
-              value: _currentSliderValue,
-              max: 8,
-              divisions: 8,
-              label: _currentSliderValue.round() != 0 ? "${_currentSliderValue.round()}" : "Reglas",
-              onChanged: (double value) {
-                widget.onLevelChanged(value);
-                setState(() {
-                  _currentSliderValue = value;
-                });
-              },
-            ),
-            Row(
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/Fondo1.png"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Center(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Radio(
-                  value: 1,
-                  groupValue: selectedSequence,
-                  onChanged: (int? value) {
-                    selectedSequence = value!;
-                    widget.onCantSequencesChanged(1);
+                Text(
+                  "SEQUENCE",
+                  style: TextStyle(
+                    fontSize: 65,
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Roboto',
+                    shadows: [
+                      Shadow(
+                        blurRadius: 2,
+                        color: Colors.white.withOpacity(0.5),
+                        offset: Offset(1, 2),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+                TextField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    hintText: 'Ingrese su nombre',
+                    labelText: 'Nombre',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) {
+                    widget.onNameChanged(value);
                   },
                 ),
-                Text('1 Secuencia'),
-                Radio(
-                  value: 2,
-                  groupValue: selectedSequence,
-                  onChanged: (int? value) {
+                if (nombreVacio)
+                  Text(
+                    "El nombre no puede estar vacio",
+                    style: TextStyle(color: Colors.red),
+                  ),
+                SizedBox(height: 20),
+                ColorSelector(
+                  onColorsSelected: (Color? color1, Color? color2) {
+                    widget.onColorChanged(color1, color2);
+                  },
+                ),
+                SizedBox(height: 20),
+                Text("Nivel:", style: TextStyle(color: Colors.white, fontSize: 20)),
+                Slider(
+                  value: _currentSliderValue,
+                  max: 12,
+                  divisions: 12,
+                  label: _currentSliderValue.round() != 0
+                      ? "${_currentSliderValue.round()}"
+                      : "Reglas",
+                  onChanged: (double value) {
+                    widget.onLevelChanged(value);
                     setState(() {
-                      selectedSequence = value!;
-                      widget.onCantSequencesChanged(2);
+                      _currentSliderValue = value;
                     });
                   },
                 ),
-                Text('2 Secuencias'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Radio(
+                      value: 1,
+                      groupValue: selectedSequence,
+                      activeColor: Colors.white,
+                      onChanged: (int? value) {
+                        selectedSequence = value!;
+                        widget.onCantSequencesChanged(1);
+                      },
+                    ),
+                    Text('1 Secuencia', style: TextStyle(color: Colors.white),),
+                    Radio(
+                      value: 2,
+                      groupValue: selectedSequence,
+                      activeColor: Colors.white,
+                      onChanged: (int? value) {
+                        setState(() {
+                          selectedSequence = value!;
+                          widget.onCantSequencesChanged(2);
+                        });
+                      },
+                    ),
+                    Text('"2 Secuencias"', style: TextStyle(color: Colors.white),),
+                  ],
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    String name = _nameController.text.trim();
+
+                    if (name.isNotEmpty && _currentSliderValue.round() != 0) {
+                      widget.onStartGame();
+                    } else {
+                      setState(() {
+                        nombreVacio = true;
+                      });
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(200, 50), // Establecer el tamaño del botón
+                  ),
+                  child: const Text("Play", style: TextStyle(fontSize: 20),),
+                ),
               ],
             ),
-            ElevatedButton(
-              onPressed: () {
-                String name = _nameController.text.trim(); // Obtener el nombre ingresado y eliminar espacios en blanco al inicio y al final
-
-                if (name.isNotEmpty && _currentSliderValue.round() != 0) { // Verificar que el nombre no esté vacío
-                  widget.onStartGame();
-                } else {
-                  setState(() {
-                    nombreVacio = true;
-                  });
-                }
-              },
-              child: const Text("Play"),
-            ),
-          ],
+          ),
         ),
       ),
     );

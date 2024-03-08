@@ -2,6 +2,7 @@ import 'package:myapp/cartaTablero.dart';
 import 'Mazo.dart';
 import 'OponentStrategies/TirarCartaStrategyN1.dart';
 import 'OponentStrategies/TirarCartaStrategyN2.dart';
+import 'OponentStrategies/TirarCartaStrategyN3.dart';
 
 class Oponente{
   int Nivel = 0;
@@ -22,6 +23,11 @@ class Oponente{
       case 6: setStrategy(TirarCartaStrategyN2()); tiempoTurnoUsuario = 30;
       case 7: setStrategy(TirarCartaStrategyN2()); tiempoTurnoUsuario = 20;
       case 8: setStrategy(TirarCartaStrategyN2()); tiempoTurnoUsuario = 10;
+
+      case 9: setStrategy(TirarCartaStrategyN3()); tiempoTurnoUsuario = 40;
+      case 10: setStrategy(TirarCartaStrategyN3()); tiempoTurnoUsuario = 30;
+      case 11: setStrategy(TirarCartaStrategyN3()); tiempoTurnoUsuario = 20;
+      case 12: setStrategy(TirarCartaStrategyN3()); tiempoTurnoUsuario = 10;
     }
   }
 
