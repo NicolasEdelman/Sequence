@@ -94,7 +94,8 @@ class _TableroPageState extends State<TableroPage> {
             itemCount: 7,
             itemBuilder: (context, index) {
               Carta carta = cartasEnManoOponente[index];
-              return cartaMano(carta: Carta("", ""), index: index, miTurno: miTurno);
+              //return cartaMano(carta: Carta("", ""), index: index, miTurno: miTurno);
+              return cartaMano(carta: carta, index: index, miTurno: miTurno);
             },
           ),
         ),
