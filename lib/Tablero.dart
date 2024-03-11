@@ -22,6 +22,8 @@ class TableroPage extends StatefulWidget {
   final int selectedSequence;
   final String name;
   final double level;
+  final Function(Resultado) onMatchFinished;
+  final Function(int) siguienteNivel;
 
   const TableroPage({
     required this.J1selectedColor,
@@ -29,6 +31,8 @@ class TableroPage extends StatefulWidget {
     required this.selectedSequence,
     required this.name,
     required this.level,
+    required this.onMatchFinished,
+    required this.siguienteNivel,
   });
 
   @override
@@ -101,8 +105,8 @@ class _TableroPageState extends State<TableroPage> {
                 itemCount: 7,
                 itemBuilder: (context, index) {
                   Carta carta = cartasEnManoOponente[index];
-                  //return cartaMano(carta: Carta("", ""), index: index, miTurno: miTurno);
-                  return cartaMano(carta: carta, index: index, miTurno: miTurno);
+                  return cartaMano(carta: Carta("", ""), index: index, miTurno: miTurno);
+                  //return cartaMano(carta: carta, index: index, miTurno: miTurno);
                 },
               ),
             ),
@@ -150,7 +154,7 @@ class _TableroPageState extends State<TableroPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(onPressed: reiniciar, child: Text("Volver a intentar")),
-                ElevatedButton(onPressed: null, child: Text("Siguiente nivel"))
+                ElevatedButton(onPressed: avanzarDeNivel, child: Text("Siguiente nivel"))
               ],
             ),
             if(perdiJuego)Row(
@@ -228,6 +232,11 @@ class _TableroPageState extends State<TableroPage> {
       }
     });
   }
+  void avanzarDeNivel(){
+    nivelOponente++;
+    widget.siguienteNivel(nivelOponente);
+    jugar();
+  }
   void reiniciar() {
     jugar();
   }
@@ -259,7 +268,8 @@ class _TableroPageState extends State<TableroPage> {
           //empezoJuego = false;
           ganeJuego = true;
           estado = "GANASTEEEE";
-          print("gane y el nivel recien jugado es ${nivelOponente}");
+          Resultado resultado = Resultado(nivelOponente, 1, selectedSequence, 0);
+          widget.onMatchFinished(resultado);
         });
       }
       else{
@@ -269,7 +279,8 @@ class _TableroPageState extends State<TableroPage> {
             //empezoJuego = false;
             perdiJuego = true;
             estado = "PERDISTEEE";
-            print("perdi y el nivel recien jugado es ${nivelOponente}");
+            Resultado resultado = Resultado(nivelOponente, 2, selectedSequence, 0);
+            widget.onMatchFinished(resultado);
           });
         }
       }
@@ -743,6 +754,15 @@ class _TableroPageState extends State<TableroPage> {
 
     );
   }
+}
+
+class Resultado {
+  int nivel;
+  int ganador;
+  int cantSecuences;
+  int tiempoJugado;
+
+  Resultado (this.nivel, this.ganador, this.cantSecuences, this.tiempoJugado);
 }
 
 
