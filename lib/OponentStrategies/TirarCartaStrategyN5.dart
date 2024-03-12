@@ -4,106 +4,108 @@ import 'package:myapp/cartaTablero.dart';
 
 class TirarCartaStrategyN5 implements TirarCartaStrategy {
 
-  List<List<int>> opciones1 = [
-    [1, 1, 1, 1, 0],
-    [1, 1, 1, 0, 1],
-    [1, 1, 0, 1, 1],
-    [1, 0, 1, 1, 1],
-    [0, 1, 1, 1, 1],
-    [-2, 1, 1, 1, 0],
-    [-2, 1, 1, 0, 1],
-    [-2, 1, 0, 1, 1],
-    [-2, 0, 1, 1, 1],
-    [1, 1, 1, 0, -2],
-    [1, 1, 0, 1, -2],
-    [1, 0, 1, 1, -2],
-    [0, 1, 1, 1, -2],
+  List<Carta> cartas = [];
+  List<List<Triplet>> matriz = [[]];
+
+  List<List<int>> opciones1 = [[1, 1, 1, 1, 0], [1, 1, 1, 0, 1], [1, 1, 0, 1, 1], [1, 0, 1, 1, 1],
+    [0, 1, 1, 1, 1], [-2, 1, 1, 1, 0], [-2, 1, 1, 0, 1], [-2, 1, 0, 1, 1], [-2, 0, 1, 1, 1],
+    [1, 1, 1, 0, -2], [1, 1, 0, 1, -2], [1, 0, 1, 1, -2], [0, 1, 1, 1, -2],
   ];
-  List<List<int>> opciones2 = [
-    [2, 2, 2, 2, 0],
-    [2, 2, 2, 0, 2],
-    [2, 2, 0, 2, 2],
-    [2, 0, 2, 2, 2],
-    [0, 2, 2, 2, 2],
-    [-2, 2, 2, 2, 0],
-    [-2, 2, 2, 0, 2],
-    [-2, 2, 0, 2, 2],
-    [-2, 0, 2, 2, 2],
-    [2, 2, 2, 0, -2],
-    [2, 2, 0, 2, -2],
-    [2, 0, 2, 2, -2],
-    [0, 2, 2, 2, -2],
+  List<List<int>> opciones2 = [[2, 2, 2, 2, 0], [2, 2, 2, 0, 2], [2, 2, 0, 2, 2], [2, 0, 2, 2, 2],
+    [0, 2, 2, 2, 2], [-2, 2, 2, 2, 0], [-2, 2, 2, 0, 2], [-2, 2, 0, 2, 2], [-2, 0, 2, 2, 2],
+    [2, 2, 2, 0, -2], [2, 2, 0, 2, -2], [2, 0, 2, 2, -2], [0, 2, 2, 2, -2],
   ];
+
 
   @override
   TableroyCarta TirarCarta(List<List<Triplet>> mat, List<Carta> baraja) {
-    for (Carta carta in baraja) {
-      if (carta.numero != "Wild" && carta.numero != "Remove") {
-        if (VerSiTiroCarta(mat, 2, carta)) {
-          print("Tire el ${carta.numero} de ${carta.palo} ofensivo");
-          baraja.remove(carta);
-          return TableroyCarta(carta, mat);
-        }
-        else if (VerSiTiroCarta(mat, 1, carta)) {
-          print("Tire el ${carta.numero} de ${carta.palo} defensivo");
-          baraja.remove(carta);
-          return TableroyCarta(carta, mat);
-        }
-      }
+    cartas = baraja;
+    matriz = mat;
+    for (Carta carta in cartas) {
+      if(siCompletaOMata(carta)) return TableroyCarta(carta, matriz);
     }
-
-    //Ver si me conviene algun Jack
-    for (Carta carta in baraja){
-      if(carta.numero == "Remove"){
-        if(TirarRemove(mat)){
-          print("Te sacaron una carta!");
-          baraja.removeAt(0);
-          return TableroyCarta(carta, mat);
-        }
-      }
-      else if(carta.numero == "Wild"){
-        if(TirarWild(mat, 2)){
-          print("Pusieron un Wild Ofensivo!");
-          baraja.removeAt(0);
-          return TableroyCarta(carta, mat);
-        }
-        else if(TirarWild(mat, 1)){
-          print("Pusieron un Wild Defensivo");
-          baraja.removeAt(0);
-          return TableroyCarta(carta, mat);
-        }
-      }
+    for(Carta carta in cartas){
+      if(TirarJackBien(carta)) return TableroyCarta(carta, matriz);
     }
-    return TirarPrimeraCarta(mat, baraja);
+    var cartaATirar = cartas[0];
+    return TirarPrimerCarta(cartaATirar);
   }
 
-
-
-  TableroyCarta TirarPrimeraCarta(List<List<Triplet>> mat, List<Carta> baraja) {
-    var cartaATirar = Carta(baraja[0].numero, baraja[0].palo);
+  TableroyCarta TirarPrimerCarta(Carta cartaATirar){
     bool deadCard = true;
     bool puseCarta = false;
-    for (int i = 0; i < 10; i++) {
-      for (int j = 0; j < 10; j++) {
-        if (!puseCarta) {
-          if (mat[i][j].fichaPuesta == 0) {
-            if (mat[i][j].numeroCarta == cartaATirar.numero &&
-                mat[i][j].palo == cartaATirar.palo) {
-              baraja.removeAt(0);
+    for (int i=0; i<10; i++){
+      for (int j=0; j<10; j++){
+        if(!puseCarta){
+          if(matriz[i][j].fichaPuesta == 0){
+            if(matriz[i][j].numeroCarta == cartaATirar.numero && matriz[i][j].palo == cartaATirar.palo){
+              cartas.removeAt(0);
               deadCard = false;
               puseCarta = true;
-              mat[i][j] = Triplet(2, cartaATirar.numero, cartaATirar.palo);
+              matriz[i][j] = Triplet(2, cartaATirar.numero.toString(), cartaATirar.palo);
             }
           }
         }
       }
     }
-    if (deadCard) {
-      baraja.removeAt(0);
+    if(deadCard){
+      cartas.removeAt(0);
       print("El oponente tiene una dead card");
     }
-    return TableroyCarta(cartaATirar, mat);
+    return TableroyCarta(cartaATirar, matriz);
   }
+
+  bool TirarJackBien(Carta cartaATirar){
+    if(cartaATirar.numero == "Remove"){
+      if(TirarRemove()){
+        print("Te sacaron una carta!");
+        cartas.removeAt(0);
+        return true;
+      }
+      PonerPrimeraAlFinal();
+    }
+    cartaATirar = cartas[0];
+    if(cartaATirar.numero == "Wild"){
+      if(TirarWild(2)){
+        print("Pusieron un Wild Ofensivo!");
+        cartas.removeAt(0);
+        return true;
+      }
+      else if(TirarWild(1)){
+        print("Pusieron un Wild Defensivo");
+        cartas.removeAt(0);
+        return true;
+      }
+      PonerPrimeraAlFinal();
+    }
+    return false;
+  }
+
+  bool siCompletaOMata(Carta carta){
+    if(carta.numero != "Wild" && carta.numero != "Remove"){
+      if(VerSiTiroCarta(2, carta)){
+        print("Tire el ${carta.numero} de ${carta.palo} ofensivo");
+        cartas.remove(carta);
+        return true;
+      }
+      else if(VerSiTiroCarta(1, carta)){
+        print("Tire el ${carta.numero} de ${carta.palo} defensivo");
+        cartas.remove(carta);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void PonerPrimeraAlFinal(){
+    Carta primera = cartas[0];
+    for(int i=0; i<6; i++){
+      cartas[i] = cartas[i+1];
+    }
+    cartas[6] = primera;
+  }
+
+
 
   // Función auxiliar para verificar si dos listas son iguales
   bool listasIguales(List<int> a, List<int> b) {
@@ -116,7 +118,7 @@ class TirarCartaStrategyN5 implements TirarCartaStrategy {
   }
 
 
-  bool VerSiTiroCarta(List<List<Triplet>> mat, int numero, Carta carta) {
+  bool VerSiTiroCarta(int numero, Carta carta) {
     bool puseCarta = false;
     List<List<int>> opciones;
     if (numero == 1)
@@ -124,6 +126,7 @@ class TirarCartaStrategyN5 implements TirarCartaStrategy {
     else
       opciones = opciones2;
 
+    //print("Voy a ver si tiro el ${carta.numero} de ${carta.palo}");
 
     // Función auxiliar para verificar si una fila cumple con algún patrón
     bool buscarPatronesEnFila(List<Triplet> fila) {
@@ -148,33 +151,33 @@ class TirarCartaStrategyN5 implements TirarCartaStrategy {
     }
 
     // Verificar en filas
-    for (List<Triplet> fila in mat) {
+    for (List<Triplet> fila in matriz) {
       if (buscarPatronesEnFila(fila)) return true;
     }
 
     // Verificar en columnas
-    for (int j = 0; j < mat[0].length; j++) {
-      if (buscarPatronesEnFila(mat.map((fila) => fila[j]).toList()))
+    for (int j = 0; j < matriz[0].length; j++) {
+      if (buscarPatronesEnFila(matriz.map((fila) => fila[j]).toList()))
         return true;
     }
 
     // Verificar en diagonales principales (\)
-    for (int i = 0; i <= mat.length - 5; i++) {
-      for (int j = 0; j <= mat[0].length - 5; j++) {
+    for (int i = 0; i <= matriz.length - 5; i++) {
+      for (int j = 0; j <= matriz[0].length - 5; j++) {
         List<Triplet> diagonal = [];
         for (int k = 0; k < 5; k++) {
-          diagonal.add(mat[i + k][j + k]);
+          diagonal.add(matriz[i + k][j + k]);
         }
         if (buscarPatronesEnFila(diagonal)) return true;
       }
     }
 
     // Verificar en diagonales secundarias (/)
-    for (int i = 0; i <= mat.length - 5; i++) {
-      for (int j = 4; j < mat[0].length; j++) {
+    for (int i = 0; i <= matriz.length - 5; i++) {
+      for (int j = 4; j < matriz[0].length; j++) {
         List<Triplet> diagonal = [];
         for (int k = 0; k < 5; k++) {
-          diagonal.add(mat[i + k][j - k]);
+          diagonal.add(matriz[i + k][j - k]);
         }
         if (buscarPatronesEnFila(diagonal)) return true;
       }
@@ -183,8 +186,7 @@ class TirarCartaStrategyN5 implements TirarCartaStrategy {
   }
 
 
-  bool TirarRemove(List<List<Triplet>> mat) {
-    print("Voy a tirar el Jack remove");
+  bool TirarRemove() {
 
     // Función auxiliar para verificar si una fila cumple con algún patrón
     bool buscarPatronesEnFila(List<Triplet> fila) {
@@ -219,32 +221,32 @@ class TirarCartaStrategyN5 implements TirarCartaStrategy {
     }
 
     // Verificar en filas
-    for (List<Triplet> fila in mat) {
+    for (List<Triplet> fila in matriz) {
       if(buscarPatronesEnFila(fila)) return true;
     }
 
     // Verificar en columnas
-    for (int j = 0; j < mat[0].length; j++) {
-      if(buscarPatronesEnFila(mat.map((fila) => fila[j]).toList())) return true;
+    for (int j = 0; j < matriz[0].length; j++) {
+      if(buscarPatronesEnFila(matriz.map((fila) => fila[j]).toList())) return true;
     }
 
     // Verificar en diagonales principales (\)
-    for (int i = 0; i <= mat.length - 5; i++) {
-      for (int j = 0; j <= mat[0].length - 5; j++) {
+    for (int i = 0; i <= matriz.length - 5; i++) {
+      for (int j = 0; j <= matriz[0].length - 5; j++) {
         List<Triplet> diagonal = [];
         for (int k = 0; k < 5; k++) {
-          diagonal.add(mat[i + k][j + k]);
+          diagonal.add(matriz[i + k][j + k]);
         }
         if(buscarPatronesEnFila(diagonal)) return true;
       }
     }
 
     // Verificar en diagonales secundarias (/)
-    for (int i = 0; i <= mat.length - 5; i++) {
-      for (int j = 4; j < mat[0].length; j++) {
+    for (int i = 0; i <= matriz.length - 5; i++) {
+      for (int j = 4; j < matriz[0].length; j++) {
         List<Triplet> diagonal = [];
         for (int k = 0; k < 5; k++) {
-          diagonal.add(mat[i + k][j - k]);
+          diagonal.add(matriz[i + k][j - k]);
         }
         if(buscarPatronesEnFila(diagonal)) return true;
       }
@@ -252,7 +254,7 @@ class TirarCartaStrategyN5 implements TirarCartaStrategy {
     return false;
   }
 
-  bool TirarWild(List<List<Triplet>> mat, int numero) {
+  bool TirarWild(int numero) {
     List<List<int>> opciones;
     if(numero == 1)opciones = opciones1;
     else opciones = opciones2;
@@ -279,32 +281,32 @@ class TirarCartaStrategyN5 implements TirarCartaStrategy {
     }
 
     // Verificar en filas
-    for (List<Triplet> fila in mat) {
+    for (List<Triplet> fila in matriz) {
       if(buscarPatronesEnFila(fila)) return true;
     }
 
     // Verificar en columnas
-    for (int j = 0; j < mat[0].length; j++) {
-      if(buscarPatronesEnFila(mat.map((fila) => fila[j]).toList())) return true;
+    for (int j = 0; j < matriz[0].length; j++) {
+      if(buscarPatronesEnFila(matriz.map((fila) => fila[j]).toList())) return true;
     }
 
     // Verificar en diagonales principales (\)
-    for (int i = 0; i <= mat.length - 5; i++) {
-      for (int j = 0; j <= mat[0].length - 5; j++) {
+    for (int i = 0; i <= matriz.length - 5; i++) {
+      for (int j = 0; j <= matriz[0].length - 5; j++) {
         List<Triplet> diagonal = [];
         for (int k = 0; k < 5; k++) {
-          diagonal.add(mat[i + k][j + k]);
+          diagonal.add(matriz[i + k][j + k]);
         }
         if(buscarPatronesEnFila(diagonal)) return true;
       }
     }
 
     // Verificar en diagonales secundarias (/)
-    for (int i = 0; i <= mat.length - 5; i++) {
-      for (int j = 4; j < mat[0].length; j++) {
+    for (int i = 0; i <= matriz.length - 5; i++) {
+      for (int j = 4; j < matriz[0].length; j++) {
         List<Triplet> diagonal = [];
         for (int k = 0; k < 5; k++) {
-          diagonal.add(mat[i + k][j - k]);
+          diagonal.add(matriz[i + k][j - k]);
         }
         if(buscarPatronesEnFila(diagonal)) return true;
       }
@@ -312,6 +314,3 @@ class TirarCartaStrategyN5 implements TirarCartaStrategy {
     return false;
   }
 }
-
-
-
