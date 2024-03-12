@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String name = '';
   double nivel = 1;
   MyAppState? appState;
-  int ultimoNivelDesbloqueado = 12;
+  int ultimoNivelDesbloqueado = 200;
 
   @override
   void initState(){
@@ -106,7 +106,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void handleSiguienteNivel(int siguienteNiv){
     setState(() {
       nivel = siguienteNiv.toDouble();
-      if(siguienteNiv > ultimoNivelDesbloqueado) ultimoNivelDesbloqueado++;
       startGame();
     });
   }

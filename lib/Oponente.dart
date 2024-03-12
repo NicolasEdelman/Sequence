@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'OponentStrategies/TirarCartaStrategyN1.dart';
 import 'OponentStrategies/TirarCartaStrategyN2.dart';
 import 'OponentStrategies/TirarCartaStrategyN3.dart';
+import 'OponentStrategies/TirarCartaStrategyN4.dart';
+import 'OponentStrategies/TirarCartaStrategyN5.dart';
 
 class Oponente{
   int Nivel = 0;
@@ -34,6 +36,17 @@ class Oponente{
       case 10: setStrategy(TirarCartaStrategyN3()); tiempoTurnoUsuario = 30;
       case 11: setStrategy(TirarCartaStrategyN3()); tiempoTurnoUsuario = 20;
       case 12: setStrategy(TirarCartaStrategyN3()); tiempoTurnoUsuario = 10;
+
+      case 13: setStrategy(TirarCartaStrategyN4()); tiempoTurnoUsuario = 40;
+      case 14: setStrategy(TirarCartaStrategyN4()); tiempoTurnoUsuario = 30;
+      case 15: setStrategy(TirarCartaStrategyN4()); tiempoTurnoUsuario = 20;
+      case 16: setStrategy(TirarCartaStrategyN4()); tiempoTurnoUsuario = 10;
+
+      case 17: setStrategy(TirarCartaStrategyN5()); tiempoTurnoUsuario = 40;
+      case 18: setStrategy(TirarCartaStrategyN5()); tiempoTurnoUsuario = 30;
+      case 19: setStrategy(TirarCartaStrategyN5()); tiempoTurnoUsuario = 20;
+      case 20: setStrategy(TirarCartaStrategyN5()); tiempoTurnoUsuario = 10;
+
     }
   }
 

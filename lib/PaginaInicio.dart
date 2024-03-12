@@ -27,6 +27,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
   double _currentSliderValue = 1;
   Color? mainColor;
   int ultimoNivelDesbloqueado;
+  int ultimoNivelDisponible = 20;
 
   _GeneratorPageState({
     required this.mainColor,
@@ -102,8 +103,8 @@ class _GeneratorPageState extends State<GeneratorPage> {
                 Slider(
                   activeColor: mainColor,
                   value: _currentSliderValue,
-                  max: 12,
-                  divisions: 12,
+                  max: ultimoNivelDisponible.toDouble(),
+                  divisions: ultimoNivelDisponible,
                   label: _currentSliderValue.round() != 0
                       ? "${_currentSliderValue.round()}"
                       : "Reglas",

@@ -76,6 +76,7 @@ class _CartaTableroState extends State<CartaTablero> {
   }
 
   Widget _buildCelda(Color colorCelda, String imagePath, double sizeNumber) {
+    bool isDarkJ2Color = widget.J2Color != null ? ThemeData.estimateBrightnessForColor(colorCelda!) == Brightness.dark : false;
     return Container(
       margin: EdgeInsets.all(1), // Espacio entre las celdas
       padding: EdgeInsets.symmetric(vertical: 2),
@@ -84,7 +85,7 @@ class _CartaTableroState extends State<CartaTablero> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(widget.triplet.numeroCarta, style: TextStyle(fontSize: sizeNumber),), // Mostrar el entero de la matriz
+            Text(widget.triplet.numeroCarta, style: TextStyle(fontSize: sizeNumber, color: isDarkJ2Color ? Colors.white : null,)),
             Image.asset(imagePath, width: 15, height: 15,), // Mostrar el palo
           ],
         ),
