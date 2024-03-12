@@ -8,20 +8,30 @@ class GeneratorPage extends StatefulWidget {
   final Function(int) onCantSequencesChanged;
   final Function(double) onLevelChanged;
   final Color mainColor;
+  final int ultimoNivelDesbloqueado;
 
-  const GeneratorPage({Key? key, required this.onStartGame, required this.onNameChanged, required this.onColorChanged, required this.onCantSequencesChanged, required this.onLevelChanged, required this.mainColor}) : super(key: key);
+  const GeneratorPage({Key? key, required this.onStartGame, required this.onNameChanged, required this.onColorChanged, required this.onCantSequencesChanged, required this.onLevelChanged, required this.mainColor, required this.ultimoNivelDesbloqueado}) : super(key: key);
 
   @override
-  State<GeneratorPage> createState() => _GeneratorPageState();
+  State<GeneratorPage> createState() => _GeneratorPageState(
+    mainColor: mainColor,
+    ultimoNivelDesbloqueado: ultimoNivelDesbloqueado
+  );
 }
 
 class _GeneratorPageState extends State<GeneratorPage> {
+
   TextEditingController _nameController = TextEditingController();
   int selectedSequence = 1;
   bool nombreVacio = false;
   double _currentSliderValue = 1;
   Color? mainColor;
+  int ultimoNivelDesbloqueado;
 
+  _GeneratorPageState({
+    required this.mainColor,
+    required this.ultimoNivelDesbloqueado
+  }){}
 
 
   @override
@@ -98,10 +108,12 @@ class _GeneratorPageState extends State<GeneratorPage> {
                       ? "${_currentSliderValue.round()}"
                       : "Reglas",
                   onChanged: (double value) {
-                    widget.onLevelChanged(value);
-                    setState(() {
-                      _currentSliderValue = value;
-                    });
+                    if(value <= ultimoNivelDesbloqueado){
+                      widget.onLevelChanged(value);
+                      setState(() {
+                        _currentSliderValue = value;
+                      });
+                    }
                   },
                 ),
                 Row(

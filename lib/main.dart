@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String name = '';
   double nivel = 1;
   MyAppState? appState;
-  int ultimoNivelDesbloqueado = 1;
+  int ultimoNivelDesbloqueado = 12;
 
   @override
   void initState(){
@@ -98,6 +98,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void handleMatchFinished(Resultado resultado){
     print("Termino el partido y el ganador fue el jugador  ${resultado.ganador}");
+    if(resultado.ganador == 1 && resultado.nivel == ultimoNivelDesbloqueado){
+      ultimoNivelDesbloqueado++;
+    }
   }
 
   void handleSiguienteNivel(int siguienteNiv){
@@ -203,6 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
           onCantSequencesChanged: handleCantSequencesChanged,
           onLevelChanged: handleLevelChanged,
           mainColor: J1selectedColor!,
+          ultimoNivelDesbloqueado: ultimoNivelDesbloqueado,
         );
         break;
       case 1:
