@@ -263,7 +263,7 @@ class _TableroPageState extends State<TableroPage> {
 
   void jugar() async{
     construirTablero();
-    Oponente oponente = Oponente(nivelOponente);
+    Oponente oponente = Oponente(nivelOponente, J1selectedColor);
     int niv = oponente.Nivel;
     print("Soy el oponente de nivel $niv");
     setState(() {
@@ -275,11 +275,12 @@ class _TableroPageState extends State<TableroPage> {
       cartasEnManoOponente = [];
       ultimaCartaTirada = Carta("", "");
       level = oponente.tiempoTurnoUsuario.toDouble();
+      J2selectedColor = oponente.colorOponente;
     });
     repartirCartas();
     while(!ganeJuego && !perdiJuego){
-      //await turnoJugador1();
-      await turnoJugador1Maquina(oponente);
+      await turnoJugador1();
+      //await turnoJugador1Maquina(oponente);
       if(revisarGanador(1, selectedSequence)){
         setState(() {
           ganeJuego = true;

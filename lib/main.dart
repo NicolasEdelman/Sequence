@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
 
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
       home: const MyHomePage(title: "", subtitle: 'Hola verano',),
@@ -38,7 +38,6 @@ class MyApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier{
   Color? J1selectedColor;
-  Color? J2selectedColor;
   int selectedSequence = 1;
   String name = '';
   double? nivel = 1;
@@ -64,11 +63,11 @@ class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
   bool isPlaying = false;
   Color? J1selectedColor = Colors.blue;
-  Color? J2selectedColor = Colors.green;
   int selectedSequence = 1;
   String name = '';
   double nivel = 1;
   MyAppState? appState;
+  int ultimoNivelDesbloqueado = 1;
 
   @override
   void initState(){
@@ -81,10 +80,9 @@ class _MyHomePageState extends State<MyHomePage> {
       name = newName;
     });
   }
-  void handleColorChanged(Color? color1, Color? color2){
+  void handleColorChanged(Color? color1){
     setState(() {
       J1selectedColor = color1;
-      J2selectedColor = color2;
     });
   }
   void handleCantSequencesChanged(int cant){
@@ -105,6 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void handleSiguienteNivel(int siguienteNiv){
     setState(() {
       nivel = siguienteNiv.toDouble();
+      if(siguienteNiv > ultimoNivelDesbloqueado) ultimoNivelDesbloqueado++;
       startGame();
     });
   }
@@ -188,7 +187,6 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       },
     );
-
   }
 
   @override
@@ -204,13 +202,14 @@ class _MyHomePageState extends State<MyHomePage> {
           onColorChanged: handleColorChanged,
           onCantSequencesChanged: handleCantSequencesChanged,
           onLevelChanged: handleLevelChanged,
+          mainColor: J1selectedColor!,
         );
         break;
       case 1:
         titlebar = "${name} - Nivel ${nivel.toInt()}";
         page = TableroPage(
           J1selectedColor: J1selectedColor,
-          J2selectedColor: J2selectedColor,
+          J2selectedColor: Colors.white,
           selectedSequence: selectedSequence,
           name: name,
           level: nivel,
@@ -223,6 +222,7 @@ class _MyHomePageState extends State<MyHomePage> {
         page = SplashScreen(
           nivel: nivel.toInt(),
           cantidadSequencias: selectedSequence,
+          j1Color: J1selectedColor,
         );
       default:
         throw UnimplementedError('No widget for $selectedIndex');
@@ -250,7 +250,9 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: panelReglas,
           ),
         ],
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        //backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: J1selectedColor,
+        toolbarHeight: 50,
       ),
       body: Column(
         children: [
@@ -259,7 +261,6 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
     );
   }
-
 }
 
 

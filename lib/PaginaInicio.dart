@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'main.dart';
 
 class GeneratorPage extends StatefulWidget {
   final VoidCallback onStartGame;
   final Function(String) onNameChanged;
-  final Function(Color?, Color?) onColorChanged;
+  final Function(Color?) onColorChanged;
   final Function(int) onCantSequencesChanged;
   final Function(double) onLevelChanged;
+  final Color mainColor;
 
-  const GeneratorPage({Key? key, required this.onStartGame, required this.onNameChanged, required this.onColorChanged, required this.onCantSequencesChanged, required this.onLevelChanged}) : super(key: key);
+  const GeneratorPage({Key? key, required this.onStartGame, required this.onNameChanged, required this.onColorChanged, required this.onCantSequencesChanged, required this.onLevelChanged, required this.mainColor}) : super(key: key);
 
   @override
   State<GeneratorPage> createState() => _GeneratorPageState();
@@ -20,6 +20,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
   int selectedSequence = 1;
   bool nombreVacio = false;
   double _currentSliderValue = 1;
+  Color? mainColor;
 
 
 
@@ -49,7 +50,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
                   "SEQUENCE",
                   style: TextStyle(
                     fontSize: 65,
-                    color: Colors.blue,
+                    color: mainColor,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Roboto',
                     shadows: [
@@ -68,25 +69,28 @@ class _GeneratorPageState extends State<GeneratorPage> {
                     hintText: 'Ingrese su nombre',
                     labelText: 'Nombre',
                     border: OutlineInputBorder(),
+                    errorText: nombreVacio ? "El nombre no puede estar vacío" : null,
                   ),
                   onChanged: (value) {
                     widget.onNameChanged(value);
+                    setState(() {
+                      nombreVacio = value.isEmpty;
+                    });
                   },
                 ),
-                if (nombreVacio)
-                  Text(
-                    "El nombre no puede estar vacio",
-                    style: TextStyle(color: Colors.red),
-                  ),
                 SizedBox(height: 20),
                 ColorSelector(
-                  onColorsSelected: (Color? color1, Color? color2) {
-                    widget.onColorChanged(color1, color2);
+                  onColorsSelected: (Color? color1) {
+                    setState(() {
+                      mainColor = color1;
+                    });
+                    widget.onColorChanged(color1);
                   },
                 ),
                 SizedBox(height: 20),
                 Text("Nivel:", style: TextStyle(color: Colors.white, fontSize: 20)),
                 Slider(
+                  activeColor: mainColor,
                   value: _currentSliderValue,
                   max: 12,
                   divisions: 12,
@@ -131,19 +135,22 @@ class _GeneratorPageState extends State<GeneratorPage> {
                 ElevatedButton(
                   onPressed: () {
                     String name = _nameController.text.trim();
-
-                    if (name.isNotEmpty && _currentSliderValue.round() != 0) {
-                      widget.onStartGame();
-                    } else {
+                    if(name.isEmpty){
                       setState(() {
                         nombreVacio = true;
                       });
+                    }
+                    else if(_currentSliderValue.round() == 0){
+                      panelReglas();
+                    }
+                    else{
+                      widget.onStartGame();
                     }
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(200, 50), // Establecer el tamaño del botón
                   ),
-                  child: const Text("Play", style: TextStyle(fontSize: 20),),
+                  child: Text("Play", style: TextStyle(fontSize: 20, color: mainColor),),
                 ),
               ],
             ),
@@ -152,12 +159,48 @@ class _GeneratorPageState extends State<GeneratorPage> {
       ),
     );
   }
+  void panelReglas(){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: SingleChildScrollView(
+            child: Dialog.fullscreen(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset("assets/images/Reglas.png"),
+                ],
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            Container(
+              height: 40,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Cierra el cuadro de diálogo
+                    },
+                    child: Text('Entendido'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 
 
 class ColorSelector extends StatefulWidget {
-  final Function(Color?, Color?) onColorsSelected;
+  final Function(Color?) onColorsSelected;
   ColorSelector({required this.onColorsSelected});
 
   @override
@@ -175,7 +218,6 @@ class _ColorSelectorState extends State<ColorSelector> {
   ];
 
   Color? J1selectedColor = Colors.blue;
-  Color? J2selectedColor = Colors.green;
 
   @override
   Widget build(BuildContext context) {
@@ -186,13 +228,12 @@ class _ColorSelectorState extends State<ColorSelector> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("J1:"),
                   for (Color color in colors)
                     GestureDetector(
                       onTap: () {
                         setState(() {
                           J1selectedColor = color;
-                          widget.onColorsSelected(J1selectedColor, J2selectedColor);
+                          widget.onColorsSelected(J1selectedColor);
                         });
                       },
                       child: Container(
@@ -210,34 +251,6 @@ class _ColorSelectorState extends State<ColorSelector> {
                     ),
                 ],
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("J2:"),
-                  for (Color color in colors)
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          J2selectedColor = color;
-                          widget.onColorsSelected(J1selectedColor, J2selectedColor);
-                        });
-                      },
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        margin: EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: color,
-                          border: Border.all(
-                            color: J2selectedColor == color ? Colors.black : Colors.transparent,
-                            width: 2.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-
             ]
         )
     );

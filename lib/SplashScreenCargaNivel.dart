@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 class SplashScreen extends StatelessWidget {
   final int nivel;
   final int cantidadSequencias;
+  final Color? j1Color;
 
   const SplashScreen({
     required this.nivel,
     required this.cantidadSequencias,
+    required this.j1Color,
     Key? key,
   }) : super(key: key);
 
@@ -20,7 +22,7 @@ class SplashScreen extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.blue, Colors.purple],
+              colors: [Colors.white, j1Color!],
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
             ),
@@ -32,15 +34,15 @@ class SplashScreen extends StatelessWidget {
               SizedBox(height: 20,),
               if(cantidadSequencias == 1)
               Text(
-                "Nivel $nivel - A 1 sequence",
+                "Nivel $nivel - 1 sequence",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 20,
                 ),
               ),
               if(cantidadSequencias == 2)
                 Text(
-                "Nivel $nivel - A 2 sequences",
+                "Nivel $nivel - 2 sequences",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,

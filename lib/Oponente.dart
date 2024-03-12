@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:myapp/cartaTablero.dart';
 import 'Mazo.dart';
+import 'package:flutter/material.dart';
 import 'OponentStrategies/TirarCartaStrategyN1.dart';
 import 'OponentStrategies/TirarCartaStrategyN2.dart';
 import 'OponentStrategies/TirarCartaStrategyN3.dart';
@@ -10,9 +12,13 @@ class Oponente{
   List<Carta> cartasEnMano = [];
   List<List<Triplet>> matriz =  List.generate(10, (_) => List<Triplet>.generate(10, (_) => Triplet(0, "0", ""),),);
   Carta ultimaCartaTirada = Carta("", "");
+  Color? colorUsuario;
+  Color? colorOponente;
   TirarCartaStrategy? strategy;
 
-  Oponente(this.Nivel){
+
+  Oponente(this.Nivel, this.colorUsuario){
+    DarColorOponente();
     switch (this.Nivel){
       case 1: setStrategy(TirarCartaStrategyN1()); tiempoTurnoUsuario = 40;
       case 2: setStrategy(TirarCartaStrategyN1()); tiempoTurnoUsuario = 30;
@@ -43,6 +49,23 @@ class Oponente{
   void ActualizarMatriz(List<List<Triplet>> nuevamatriz){
     this.matriz = nuevamatriz;
   }
+
+  void DarColorOponente(){
+    List<Color> listaColores = [Colors.blue, Colors.green, Colors.yellow, Colors.orange, Colors.purple, Colors.teal, Colors.black];
+    listaColores.remove(colorUsuario);
+    List<Color> nuevaLista = [];
+    nuevaLista.add(Colors.white);
+    for(var color in listaColores){
+      nuevaLista.add(Color.lerp(color, Colors.white, 0.35)!);
+      nuevaLista.add(Color.lerp(color, Colors.white, 0.65)!);
+      nuevaLista.add(color);
+      nuevaLista.add(Color.lerp(color, Colors.black, 0.35)!);
+      nuevaLista.add(Color.lerp(color, Colors.black, 0.65)!);
+    }
+    listaColores = nuevaLista;
+    colorOponente = listaColores[this.Nivel];
+  }
+
 }
 
 abstract class TirarCartaStrategy{
