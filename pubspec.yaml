@@ -73,6 +73,9 @@ flutter:
     - assets/images/Fondo2.png
     - assets/images/Fondo3.jpg
     - assets/images/Fondo4.png
+    - assets/images/Ganaste.png
+    - assets/images/Perdiste.png
+    - assets/images/Perdiste1.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

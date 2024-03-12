@@ -87,139 +87,155 @@ class _TableroPageState extends State<TableroPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/images/Fondo1.png"),
-            fit: BoxFit.cover,
-          )
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(padding: EdgeInsets.only(top: 10),),
-            Container(
-              height: 60,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 7,
-                itemBuilder: (context, index) {
-                  Carta carta = cartasEnManoOponente[index];
-                  return cartaMano(carta: Carta("", ""), index: index, miTurno: miTurno);
-                  //return cartaMano(carta: carta, index: index, miTurno: miTurno);
-                },
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/images/Fondo1.png"),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(padding: EdgeInsets.only(top: 10),),
+                Container(
+                  height: 60,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 7,
+                    itemBuilder: (context, index) {
+                      Carta carta = cartasEnManoOponente[index];
+                      return cartaMano(carta: Carta("", ""), index: index, miTurno: miTurno);
+                    },
+                  ),
+                ),
+                Text("Se juega a $selectedSequence sequences"),
+                Padding(padding: EdgeInsets.only(top: 10),),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    cartaMano(carta: Carta("0", ""), index: -1, miTurno: miTurno),
+                    cartaMano(carta: ultimaCartaTirada, index: -1, miTurno: miTurno),
+                  ],
+                ),
+                Padding(padding: EdgeInsets.only(top: 5),),
+                Expanded(
+                  child: GridView.builder(
+                    itemCount: 10 * 10, // Total de celdas en el tablero
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 10, // Número de columnas en el tablero
+                    ),
+                    itemBuilder: (context, index) {
+                      // Calcular la fila y la columna para este índice
+                      int fila = index ~/ 10;
+                      int columna = index % 10;
+
+                      // Obtener el par correspondiente en la matriz combinada
+                      Triplet triplet = matriz[fila][columna];
+
+                      // Construir el widget de la celda
+                      return CartaTablero(triplet: triplet, J1Color: J1selectedColor, J2Color: J2selectedColor, onTap: (Carta carta){
+                        setState(() {
+                          cartaSeleccionadaTablero = carta;
+                          filaCartaSeleccionadaTablero = fila;
+                          columnaCartaSeleccionadaTablero = columna;
+                        });
+                      },);
+                    },
+                  ),
+                ),
+                if(estado != "" && !ganeJuego && !perdiJuego) Text(estado),
+                SizedBox(height: 10),
+                if(!empezoJuego) ElevatedButton(onPressed: jugarPrimeraVez, child: Text("Start")),
+                if(ganeJuego) Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(onPressed: reiniciar, child: Text("Volver a intentar")),
+                    SizedBox(width: 10,),
+                    ElevatedButton(onPressed: avanzarDeNivel, child: Text("Siguiente nivel"))
+                  ],
+                ),
+                if(perdiJuego) Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(onPressed: reiniciar, child: Text("Volver a intentar")),
+                  ],
+                ),
+                if(miTurno) Text("Es tu turno!"),
+
+                StreamBuilder<int>(
+                  stream: _timerController.stream,
+                  initialData: -1 ,// Establece el valor inicial del temporizador
+                  builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+                    if (snapshot.data == 0) {
+                      return Text('Tiempo agotado');
+                    }
+                    else if(snapshot.data == -1){
+                      return Text("");
+                    }
+                    else {
+                      return Text('Te quedan ${snapshot.data} segundos');
+                    }
+                  },
+                ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 70),
+                  child: Center(
+                      child:
+                      Container(
+                        height: 90,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: 7,
+                          itemBuilder: (context, index){
+                            Carta carta = cartasEnManoMia[index];
+                            return Draggable(
+                              childWhenDragging: Container(),
+                              feedback: cartaMano(carta: carta, index: index, miTurno: miTurno),
+                              onDragStarted: () {
+                                setState(() {
+                                  cartaPresionada = carta;
+                                  poscartaPresionada = index;
+                                });
+                              },
+                              // Cuando termina de arrastrar
+                              onDragEnd: (details) {
+                                setState(() {
+                                  cartasEnManoMia.removeAt(poscartaPresionada); // Removemos la carta de su posición original
+                                  cartasEnManoMia.insert(6, cartaPresionada); // La insertamos en la nueva posición
+                                  cartaPresionada = Carta("0", ""); // Reiniciamos la carta presionada
+                                });
+                              },
+                              child: cartaMano(carta: carta, index: index, miTurno: miTurno),
+                            );
+                          },
+                        ),
+                      )
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (ganeJuego)
+            Center(
+              child: Image.asset(
+                "assets/images/Ganaste.png",
+                fit: BoxFit.cover,
               ),
             ),
 
-            Text("Se juega a $selectedSequence sequences"),
-            Padding(padding: EdgeInsets.only(top: 10),),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                cartaMano(carta: Carta("0", ""), index: -1, miTurno: miTurno),
-                cartaMano(carta: ultimaCartaTirada, index: -1, miTurno: miTurno),
-              ],
+          if (perdiJuego)
+            Center(
+              child: Image.asset(
+                "assets/images/Perdiste1.png",
+                fit: BoxFit.cover,
+              ),
             ),
-
-            Padding(padding: EdgeInsets.only(top: 5),),
-            Expanded(
-                child:GridView.builder(
-                  itemCount: 10 * 10, // Total de celdas en el tablero
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 10, // Número de columnas en el tablero
-                  ),
-                  itemBuilder: (context, index) {
-                    // Calcular la fila y la columna para este índice
-                    int fila = index ~/ 10;
-                    int columna = index % 10;
-
-                    // Obtener el par correspondiente en la matriz combinada
-                    Triplet triplet = matriz[fila][columna];
-
-                    // Construir el widget de la celda
-                    return CartaTablero(triplet: triplet, J1Color: J1selectedColor, J2Color: J2selectedColor, onTap: (Carta carta){
-                      setState(() {
-                        cartaSeleccionadaTablero = carta;
-                        filaCartaSeleccionadaTablero = fila;
-                        columnaCartaSeleccionadaTablero = columna;
-                      });
-                    },);
-                  },
-                )
-            ),
-            if(estado != "" && !ganeJuego && !perdiJuego) Text(estado),
-            SizedBox(height: 10),
-            if(!empezoJuego) ElevatedButton(onPressed: jugarPrimeraVez, child: Text("Start")),
-            if(ganeJuego)Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(onPressed: reiniciar, child: Text("Volver a intentar")),
-                ElevatedButton(onPressed: avanzarDeNivel, child: Text("Siguiente nivel"))
-              ],
-            ),
-            if(perdiJuego)Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(onPressed: reiniciar, child: Text("Volver a intentar")),
-              ],
-            ),
-            if(miTurno)Text("Es tu turno!"),
-
-            StreamBuilder<int>(
-              stream: _timerController.stream,
-              initialData: -1 ,// Establece el valor inicial del temporizador
-              builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-                if (snapshot.data == 0) {
-                  return Text('Tiempo agotado');
-                }
-                else if(snapshot.data == -1){
-                  return Text("");
-                }
-                else {
-                  return Text('Te quedan ${snapshot.data} segundos');
-                }
-              },
-            ),
-            Padding(
-              padding: EdgeInsets.only(bottom: 70),
-              child: Center(
-                  child:
-                  Container(
-                    height: 90,
-                    child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: 7,
-                        itemBuilder: (context, index){
-                          Carta carta = cartasEnManoMia[index];
-                          return Draggable(
-                            childWhenDragging: Container(),
-                            feedback: cartaMano(carta: carta, index: index, miTurno: miTurno),
-                            onDragStarted: () {
-                              setState(() {
-                                cartaPresionada = carta;
-                                poscartaPresionada = index;
-                              });
-                            },
-                            // Cuando termina de arrastrar
-                            onDragEnd: (details) {
-                              setState(() {
-                                cartasEnManoMia.removeAt(poscartaPresionada); // Removemos la carta de su posición original
-                                cartasEnManoMia.insert(6, cartaPresionada); // La insertamos en la nueva posición
-                                cartaPresionada = Carta("0", ""); // Reiniciamos la carta presionada
-                              });
-                            },
-                            child: cartaMano(carta: carta, index: index, miTurno: miTurno),
-                          );
-
-                          //return cartaMano(carta: carta, index: index, miTurno: miTurno);
-                        }),
-                  )
-              ),),
-          ],
-        ),
+        ],
       ),
     );
-
   }
 
   void actualizarOrdenCartas(int index) {
@@ -262,10 +278,10 @@ class _TableroPageState extends State<TableroPage> {
     });
     repartirCartas();
     while(!ganeJuego && !perdiJuego){
-      await turnoJugador1();
+      //await turnoJugador1();
+      await turnoJugador1Maquina(oponente);
       if(revisarGanador(1, selectedSequence)){
         setState(() {
-          //empezoJuego = false;
           ganeJuego = true;
           estado = "GANASTEEEE";
           Resultado resultado = Resultado(nivelOponente, 1, selectedSequence, 0);
@@ -379,7 +395,6 @@ class _TableroPageState extends State<TableroPage> {
 
 
 
-
   void tirarCarta(){
     //print("$name, apoyaste el ${cartaSeleccionadaTablero.numero} de ${cartaSeleccionadaTablero.palo} en el tablero que esta en la fila ${filaCartaSeleccionadaTablero} y columna ${columnaCartaSeleccionadaTablero}");
 
@@ -416,6 +431,25 @@ class _TableroPageState extends State<TableroPage> {
       estado = "";
     });
     entregarCarta(2);
+  }
+
+  Future<void> turnoJugador1Maquina(Oponente oponente) async{
+    oponente.ActualizarMatriz(matriz);
+    for (Carta carta in cartasEnManoMia){
+      if(tengoDeadCard(carta) && carta.numero != "Wild" && carta.numero != "Remove"){
+        cartasEnManoMia.remove(carta);
+        entregarCarta(1);
+      }
+    }
+    oponente.ActualizarCartas(cartasEnManoMia);
+    //print("Tengo ${oponente.cartasEnMano.length} cartas en mano");
+    var retorno = oponente.tirarCarta();
+    setState(() {
+      matriz = retorno.tablero;
+      ultimaCartaTirada = retorno.carta;
+      estado = "";
+    });
+    entregarCarta(1);
   }
 
 

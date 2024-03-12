@@ -30,13 +30,23 @@ class SplashScreen extends StatelessWidget {
             children: [
               Image.asset("assets/images/poker.png", height: 150,),
               SizedBox(height: 20,),
+              if(cantidadSequencias == 1)
               Text(
-                "Nivel: $nivel - Cantidad de secuencias: $cantidadSequencias",
+                "Nivel $nivel - A 1 sequence",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                 ),
               ),
+              if(cantidadSequencias == 2)
+                Text(
+                "Nivel $nivel - A 2 sequences",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                ),
+              ),
+
             ],
           ),
         ),
