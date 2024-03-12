@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:myapp/SplashScreenCargaNivel.dart';
 import 'package:provider/provider.dart';
 import 'Tablero.dart';
 import 'PaginaInicio.dart';
@@ -102,16 +103,21 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void handleSiguienteNivel(int siguienteNiv){
-    print("Yendo al nivel $siguienteNiv");
     setState(() {
       nivel = siguienteNiv.toDouble();
+      startGame();
     });
   }
 
   void startGame() {
       setState(() {
         isPlaying = true;
-        selectedIndex = 1;
+        selectedIndex = 2;
+      });
+      Future.delayed(Duration(seconds: 3), (){
+        setState(() {
+          selectedIndex = 1;
+        });
       });
   }
 
@@ -212,6 +218,12 @@ class _MyHomePageState extends State<MyHomePage> {
           siguienteNivel: handleSiguienteNivel,
         );
         break;
+      case 2:
+        titlebar = "${name} - Nivel ${nivel.toInt()}";
+        page = SplashScreen(
+          nivel: nivel.toInt(),
+          cantidadSequencias: selectedSequence,
+        );
       default:
         throw UnimplementedError('No widget for $selectedIndex');
     }

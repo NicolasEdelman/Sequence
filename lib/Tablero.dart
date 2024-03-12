@@ -235,7 +235,7 @@ class _TableroPageState extends State<TableroPage> {
   void avanzarDeNivel(){
     nivelOponente++;
     widget.siguienteNivel(nivelOponente);
-    jugar();
+    //jugar();
   }
   void reiniciar() {
     jugar();
