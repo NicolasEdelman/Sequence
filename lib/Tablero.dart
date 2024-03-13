@@ -73,6 +73,8 @@ class _TableroPageState extends State<TableroPage> {
   Carta ultimaCartaTirada = Carta("0", "");
   StreamController<int> _timerController = StreamController<int>();
   int nivelOponente = 0;
+  Oponente oponente = Oponente(0, null);
+  int cantWilds = 0;
 
 
   _TableroPageState({
@@ -107,8 +109,8 @@ class _TableroPageState extends State<TableroPage> {
                     itemCount: 7,
                     itemBuilder: (context, index) {
                       Carta carta = cartasEnManoOponente[index];
-                      //return cartaMano(carta: Carta("", ""), index: index, miTurno: miTurno);
-                      return cartaMano(carta: carta, index: index, miTurno: miTurno);
+                      return cartaMano(carta: Carta("", ""), index: index, miTurno: miTurno);
+                      //return cartaMano(carta: carta, index: index, miTurno: miTurno);
                     },
                   ),
                 ),
@@ -264,7 +266,7 @@ class _TableroPageState extends State<TableroPage> {
 
   void jugar() async{
     construirTablero();
-    Oponente oponente = Oponente(nivelOponente, J1selectedColor);
+    oponente = Oponente(nivelOponente, J1selectedColor);
     int niv = oponente.Nivel;
     print("Soy el oponente de nivel $niv");
     setState(() {
@@ -277,11 +279,12 @@ class _TableroPageState extends State<TableroPage> {
       ultimaCartaTirada = Carta("", "");
       level = oponente.tiempoTurnoUsuario.toDouble();
       J2selectedColor = oponente.colorOponente;
+      cantWilds = 0;
     });
     repartirCartas();
     while(!ganeJuego && !perdiJuego){
-      await turnoJugador1();
-      //await turnoJugador1Maquina(oponente);
+      //await turnoJugador1();
+      await turnoJugador1Maquina(oponente);
       if(revisarGanador(1, selectedSequence)){
         setState(() {
           ganeJuego = true;
@@ -469,7 +472,13 @@ class _TableroPageState extends State<TableroPage> {
   void entregarCarta(int jugador){
     setState(() {
       if(jugador == 1){
-        cartasEnManoMia.add(mazo.darPrimerCarta());
+        Carta cartaADar = mazo.darPrimerCarta();
+        if(cartaADar.numero == "Wild"){
+          if(cantWilds >= 1) cartasEnManoMia.add(mazo.darPrimerCarta());
+          else cartasEnManoMia.add(cartaADar); cantWilds ++;
+        }
+        else cartasEnManoMia.add(cartaADar);
+
       }
       if(jugador == 2){
         cartasEnManoOponente.add(mazo.darPrimerCarta());
