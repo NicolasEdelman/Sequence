@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'Mazo.dart';
 import 'cartaTablero.dart';
 import 'Oponente.dart';
+import 'dart:math';
 
 void main() {
   runApp(
@@ -83,7 +84,7 @@ class _TableroPageState extends State<TableroPage> {
     required this.selectedSequence,
     required this.name,
     required this.level}) {
-    matriz = construirTablero();
+    matriz = construirTablero(this.level.toInt());
   }
 
   @override
@@ -265,9 +266,9 @@ class _TableroPageState extends State<TableroPage> {
   }
 
   void jugar() async{
-    construirTablero();
     oponente = Oponente(nivelOponente, J1selectedColor);
     int niv = oponente.Nivel;
+    construirTablero(niv);
     print("Soy el oponente de nivel $niv");
     setState(() {
       mazo = Mazo();
@@ -614,7 +615,7 @@ class _TableroPageState extends State<TableroPage> {
 
 
 
-  List<List<Triplet>> construirTablero() {
+  List<List<Triplet>> construirTablero(int nivel) {
     List.generate(10, (_) => List<Triplet>.generate(10, (_) => Triplet(0, "0", ""),),);
     matriz[0] = [
       Triplet(-2, "0", "Joker"), // Joker
@@ -707,8 +708,64 @@ class _TableroPageState extends State<TableroPage> {
       for (int i = 10; i >= 6; i--) Triplet(0,i.toString(), "Diamante"),
       Triplet(-2,"0", "Joker"),
     ];
+    if(nivel % 4 == 1 && nivel != 1) desordenarMatriz(matriz);
+    else if(nivel % 2 == 0) voltearMatriz(matriz);
     return matriz;
   }
+
+
+  void voltearMatriz(List<List<Triplet>> matrizOriginal) {
+    List<List<Triplet>> matrizVolteada = List.generate(10, (_) => List<Triplet>.filled(10, Triplet(0, "", ""), growable: false),);
+    for (int i = 0; i < 10; i++) {
+      matrizVolteada[i] = matrizOriginal[9 - i];
+    }
+    matriz = matrizVolteada;
+  }
+
+  void desordenarMatriz(List<List<Triplet>> matrizOriginal) {
+    List<List<Triplet>> matrizDesordenada = List.generate(10, (_) => List<Triplet>.filled(10, Triplet(0, "", ""), growable: false),);
+
+    // Copiar las esquinas "Joker"
+    matrizDesordenada[0][0] = matrizOriginal[0][0];
+    matrizDesordenada[0][9] = matrizOriginal[0][9];
+    matrizDesordenada[9][0] = matrizOriginal[9][0];
+    matrizDesordenada[9][9] = matrizOriginal[9][9];
+
+    // Crear una lista con los elementos no esquinas
+    List<Triplet> elementosNoEsquinas = [];
+    for (int i = 1; i < 9; i++) {
+      for (int j = 1; j < 9; j++) {
+        elementosNoEsquinas.add(matrizOriginal[i][j]);
+      }
+    }
+    for(int i=1; i<9; i++){
+      elementosNoEsquinas.add(matrizOriginal[i][0]);
+      elementosNoEsquinas.add(matrizOriginal[i][9]);
+      elementosNoEsquinas.add(matrizOriginal[0][i]);
+      elementosNoEsquinas.add(matrizOriginal[9][i]);
+    }
+
+    // Desordenar la lista de elementos no esquinas
+    elementosNoEsquinas.shuffle();
+
+    // Asignar los elementos desordenados en la matriz desordenada
+    int index = 0;
+    for (int i = 1; i < 9; i++) {
+      for (int j = 1; j < 9; j++) {
+        matrizDesordenada[i][j] = elementosNoEsquinas[index];
+        index++;
+      }
+    }
+    for(int i=1; i<9; i++){
+      matrizDesordenada[i][0] = elementosNoEsquinas[index++];
+      matrizDesordenada[i][9] = elementosNoEsquinas[index++];
+      matrizDesordenada[0][i] = elementosNoEsquinas[index++];
+      matrizDesordenada[9][i] = elementosNoEsquinas[index++];
+    }
+
+    matriz =  matrizDesordenada;
+  }
+
 
 
   Widget cartaMano({required Carta carta, required int index, required bool miTurno}) {
