@@ -27,7 +27,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
   double _currentSliderValue = 1;
   Color? mainColor;
   int ultimoNivelDesbloqueado;
-  int ultimoNivelDisponible = 20;
+  int ultimoNivelDisponible = 24;
 
   _GeneratorPageState({
     required this.mainColor,

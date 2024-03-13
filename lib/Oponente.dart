@@ -7,6 +7,7 @@ import 'OponentStrategies/TirarCartaStrategyN2.dart';
 import 'OponentStrategies/TirarCartaStrategyN3.dart';
 import 'OponentStrategies/TirarCartaStrategyN4.dart';
 import 'OponentStrategies/TirarCartaStrategyN5.dart';
+import 'OponentStrategies/TirarCartaStrategyN6.dart';
 
 class Oponente{
   int Nivel = 0;
@@ -46,6 +47,11 @@ class Oponente{
       case 18: setStrategy(TirarCartaStrategyN5()); tiempoTurnoUsuario = 30;
       case 19: setStrategy(TirarCartaStrategyN5()); tiempoTurnoUsuario = 20;
       case 20: setStrategy(TirarCartaStrategyN5()); tiempoTurnoUsuario = 10;
+
+      case 21: setStrategy(TirarCartaStrategyN6()); tiempoTurnoUsuario = 40;
+      case 22: setStrategy(TirarCartaStrategyN6()); tiempoTurnoUsuario = 30;
+      case 23: setStrategy(TirarCartaStrategyN6()); tiempoTurnoUsuario = 20;
+      case 24: setStrategy(TirarCartaStrategyN6()); tiempoTurnoUsuario = 10;
 
     }
   }

@@ -284,8 +284,8 @@ class _TableroPageState extends State<TableroPage> {
     });
     repartirCartas();
     while(!ganeJuego && !perdiJuego){
-      //await turnoJugador1();
-      await turnoJugador1Maquina(oponente);
+      await turnoJugador1();
+      //await turnoJugador1Maquina(oponente);
       if(revisarGanador(1, selectedSequence)){
         setState(() {
           ganeJuego = true;
