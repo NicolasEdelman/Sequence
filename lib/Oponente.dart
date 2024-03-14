@@ -51,7 +51,7 @@ class Oponente{
       case 21: setStrategy(TirarCartaStrategyN6()); tiempoTurnoUsuario = 40;
       case 22: setStrategy(TirarCartaStrategyN6()); tiempoTurnoUsuario = 30;
       case 23: setStrategy(TirarCartaStrategyN6()); tiempoTurnoUsuario = 20;
-      case 24: setStrategy(TirarCartaStrategyN6()); tiempoTurnoUsuario = 10;
+      case 24: setStrategy(TirarCartaStrategyN6()); tiempoTurnoUsuario = 1;
 
     }
   }

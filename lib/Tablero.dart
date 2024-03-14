@@ -5,6 +5,7 @@ import 'Mazo.dart';
 import 'cartaTablero.dart';
 import 'Oponente.dart';
 import 'dart:math';
+import 'dart:io';
 
 void main() {
   runApp(
@@ -76,6 +77,9 @@ class _TableroPageState extends State<TableroPage> {
   int nivelOponente = 0;
   Oponente oponente = Oponente(0, null);
   int cantWilds = 0;
+  List<List<Carta>> sequences1 = [];
+  List<List<Carta>> sequences2 = [];
+
 
 
   _TableroPageState({
@@ -230,13 +234,13 @@ class _TableroPageState extends State<TableroPage> {
               ),
             ),
 
-          if (perdiJuego)
+          /*if (perdiJuego)
             Center(
               child: Image.asset(
                 "assets/images/Perdiste1.png",
                 fit: BoxFit.cover,
               ),
-            ),
+            ),*/
         ],
       ),
     );
@@ -281,6 +285,8 @@ class _TableroPageState extends State<TableroPage> {
       level = oponente.tiempoTurnoUsuario.toDouble();
       J2selectedColor = oponente.colorOponente;
       cantWilds = 0;
+      sequences1 = [];
+      sequences2 = [];
     });
     repartirCartas();
     while(!ganeJuego && !perdiJuego){
@@ -492,7 +498,17 @@ class _TableroPageState extends State<TableroPage> {
       mazo.mezclarMazo();
       cartasEnManoMia = [];
     });
-    for (int i=0; i<=6; i++){
+    cartasEnManoMia.add(Carta("Wild", "Corazon"));
+    cartasEnManoMia.add(Carta("Wild", "Corazon"));
+    cartasEnManoMia.add(Carta("Wild", "Corazon"));
+    cartasEnManoMia.add(Carta("Wild", "Corazon"));
+    cartasEnManoMia.add(Carta("Wild", "Corazon"));
+    entregarCarta(2);
+    entregarCarta(2);
+    entregarCarta(2);
+    entregarCarta(2);
+    entregarCarta(2);
+    for (int i=0; i<=1; i++){
       entregarCarta(1);
       entregarCarta(2);
     }
@@ -500,13 +516,66 @@ class _TableroPageState extends State<TableroPage> {
   }
 
 
+  bool sonIguales(List<Carta> lista1, List<Carta> lista2){
+    for(int i=0; i<lista1.length; i++){
+      if(lista1[i].numero != lista2[i].numero || lista1[i].palo != lista2[i].palo){
+        print("No son iguales");
+        return false;
+      }
+    }
+    print("Son iguales");
+    return true;
+  }
+  bool tienenMasDeUnoEnComun(List<Carta> lista1, List<Carta> lista2){
+    int cantEnComun = 0;
+    for(int i=0; i<lista1.length; i++){
+      for(int j=0; j<lista2.length; j++){
+        if(lista1[i].numero == lista2[j].numero && lista1[i].palo == lista2[j].palo){
+          cantEnComun++;
+        }
+      }
+    }
+    if(cantEnComun > 1){
+      print("Tiene más de 1 en comun");
+      return true;
+    }
+    else{
+      print("Tiene 1 o menos en comun");
+      return false;
+    }
+  }
+
+  bool perteneceASequences(List<List<Carta>> sequencesYaHechos, List<Carta> sequence) {
+    for(List<Carta> lista in sequencesYaHechos){
+      if(sonIguales(lista, sequence)) return true;
+      if(tienenMasDeUnoEnComun(lista, sequence)) return true;
+    }
+    return false;
+  }
+  void imprimirSequence(List<Carta> lista){
+    print("Lista: ${lista[0].numero} de ${lista[0].palo}, ${lista[1].numero} de ${lista[1].palo}, ${lista[2].numero} de ${lista[2].palo}, ${lista[3].numero} de ${lista[3].palo}, ${lista[4].numero} de ${lista[4].palo},");
+  }
+  void verSiLoAgrego(List<Carta> lista, int ficha){
+    if(ficha == 1){
+      if(!perteneceASequences(sequences1, lista)){
+        setState(() {
+          sequences1.add(lista);
+        });
+      }
+    }
+    else if(ficha == 2){
+      if(!perteneceASequences(sequences2, lista)){
+        setState(() {
+          sequences2.add(lista);
+        });
+      }
+    }
+  }
 
   bool revisarGanador(int ficha, int sequences) {
-    List<List<bool>> visitado = List.generate(10, (_) => List<bool>.filled(10, false));
-    int cantidad = 0;
-
+    Carta cartaAingresar = Carta("", "");
+    List<Carta> sequence = [];
     // Revisar filas
-    int celdasVisitadas = 0;
     for (int i = 0; i < 10; i++) {
       for (int j = 0; j <= 5; j++) {
         bool posibleganador = true;
@@ -517,21 +586,16 @@ class _TableroPageState extends State<TableroPage> {
           }
         }
         if (posibleganador) {
+          sequence = [];
           for (int k = 0; k < 5; k++) {
-            if(visitado[i][j+k] == true){celdasVisitadas++;}
+            cartaAingresar = Carta(matriz[i][j+k].numeroCarta, matriz[i][j+k].palo);
+            sequence.add(cartaAingresar);
           }
-          if(celdasVisitadas > 1) break;
-          else{
-            for (int k = 0; k < 5; k++) {
-              visitado[i][j+k] = true;
-            }
-          }
-          cantidad++;
+          verSiLoAgrego(sequence, ficha);
         }
       }
     }
     // Revisar columnas
-    celdasVisitadas = 0;
     for (int i = 0; i < 10; i++) {
       for (int j = 0; j <= 5; j++) {
         bool posibleganador = true;
@@ -542,22 +606,17 @@ class _TableroPageState extends State<TableroPage> {
           }
         }
         if (posibleganador) {
-          for (int k=0; k< 5; k++){
-            if(visitado[j+k][i] == true) celdasVisitadas++;
+          sequence = [];
+          for (int k = 0; k < 5; k++) {
+            cartaAingresar = Carta(matriz[j+k][i].numeroCarta, matriz[j+k][i].palo);
+            sequence.add(cartaAingresar);
           }
-          if(celdasVisitadas > 1) break;
-          else{
-            for(int k=0; k<5; k++){
-              visitado[j+k][i] == true;
-            }
-          }
-         cantidad++;
+          verSiLoAgrego(sequence, ficha);
         }
       }
     }
 
     // Revisar diagonales principales (\)
-    celdasVisitadas = 0;
     for (int i = 0; i <= 5; i++) {
       for (int j = 0; j <= 5; j++) {
         bool posibleganador = true;
@@ -568,22 +627,17 @@ class _TableroPageState extends State<TableroPage> {
           }
         }
         if (posibleganador) {
-          for (int k = 0; k < 5; k++){
-            if(visitado[i+k][j+k] == true) celdasVisitadas++;
+          sequence = [];
+          for (int k = 0; k < 5; k++) {
+            cartaAingresar = Carta(matriz[i+k][j+k].numeroCarta, matriz[i+k][j+k].palo);
+            sequence.add(cartaAingresar);
           }
-          if(celdasVisitadas>1)break;
-          else{
-            for (int k = 0; k < 5; k++){
-              visitado[i+k][j+k] = true;
-            }
-          }
-          cantidad++;
+          verSiLoAgrego(sequence, ficha);
         }
       }
     }
 
     // Revisar diagonales secundarias (/)
-    celdasVisitadas = 0;
     for (int i = 0; i <= 5; i++) {
       for (int j = 4; j < 10; j++) {
         bool posibleganador = true;
@@ -594,20 +648,20 @@ class _TableroPageState extends State<TableroPage> {
           }
         }
         if (posibleganador) {
-          for (int k = 0; k < 5; k++){
-            if(visitado[i+k][j-k] == true) celdasVisitadas++;
+          sequence = [];
+          for (int k = 0; k < 5; k++) {
+            cartaAingresar = Carta(matriz[i+k][j-k].numeroCarta, matriz[i+k][j-k].palo);
+            sequence.add(cartaAingresar);
           }
-          if(celdasVisitadas>1)break;
-          else{
-            for (int k = 0; k < 5; k++)
-              visitado[i+k][j-k] = true;
-          }
-          cantidad++;
+          verSiLoAgrego(sequence, ficha);
         }
+
       }
     }
-    if(cantidad >= sequences) return true;
-    else return false;
+
+    if(sequences1.length >= sequences) return true;
+    if(sequences2.length >= sequences) return true;
+    return false;
   }
 
 
@@ -702,9 +756,9 @@ class _TableroPageState extends State<TableroPage> {
     ];
     matriz[9] = [
       Triplet(-2, "0", "Joker"),
-      Triplet(0, "A", "Diamante"),
-      Triplet(0, "K", "Diamante"),
-      Triplet(0, "Q", "Diamante"),
+      Triplet(1, "A", "Diamante"),
+      Triplet(1, "K", "Diamante"),
+      Triplet(1, "Q", "Diamante"),
       for (int i = 10; i >= 6; i--) Triplet(0,i.toString(), "Diamante"),
       Triplet(-2,"0", "Joker"),
     ];
@@ -866,6 +920,8 @@ class Resultado {
 
   Resultado (this.nivel, this.ganador, this.cantSecuences, this.tiempoJugado);
 }
+
+
 
 
 
