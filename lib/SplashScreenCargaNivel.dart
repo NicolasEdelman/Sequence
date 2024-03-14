@@ -20,6 +20,7 @@ class SplashScreen extends StatelessWidget {
       child: Scaffold(
         body: Container(
           width: double.infinity,
+          height: double.infinity,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.white, j1Color!],
@@ -30,25 +31,29 @@ class SplashScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset("assets/images/poker.png", height: 150,),
-              SizedBox(height: 20,),
-              if(cantidadSequencias == 1)
-              Text(
-                "Nivel $nivel - 1 sequence",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                ),
-              ),
-              if(cantidadSequencias == 2)
-                Text(
-                "Nivel $nivel - 2 sequences",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                ),
-              ),
-
+              Expanded(child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset("assets/images/poker.png", height: 150,),
+                  SizedBox(height: 20,),
+                  if(cantidadSequencias == 1)
+                    Text(
+                      "Nivel $nivel - 1 sequence",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                      ),
+                    ),
+                  if(cantidadSequencias == 2)
+                    Text(
+                      "Nivel $nivel - 2 sequences",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                    ),
+                ],
+              ))
             ],
           ),
         ),

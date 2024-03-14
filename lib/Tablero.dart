@@ -77,8 +77,8 @@ class _TableroPageState extends State<TableroPage> {
   int nivelOponente = 0;
   Oponente oponente = Oponente(0, null);
   int cantWilds = 0;
-  List<List<Carta>> sequences1 = [];
-  List<List<Carta>> sequences2 = [];
+  List<List<CartaConPos>> sequences1 = [];
+  List<List<CartaConPos>> sequences2 = [];
 
 
 
@@ -144,7 +144,7 @@ class _TableroPageState extends State<TableroPage> {
                       Triplet triplet = matriz[fila][columna];
 
                       // Construir el widget de la celda
-                      return CartaTablero(triplet: triplet, J1Color: J1selectedColor, J2Color: J2selectedColor, onTap: (Carta carta){
+                      return CartaTablero(columna: columna, fila: fila, triplet: triplet, J1Color: J1selectedColor, J2Color: J2selectedColor, onTap: (Carta carta){
                         setState(() {
                           cartaSeleccionadaTablero = carta;
                           filaCartaSeleccionadaTablero = fila;
@@ -293,6 +293,9 @@ class _TableroPageState extends State<TableroPage> {
       await turnoJugador1();
       //await turnoJugador1Maquina(oponente);
       if(revisarGanador(1, selectedSequence)){
+        final completer = Completer<void>();
+        MostrarGanador(sequences1, 1, completer);
+        await completer.future;
         setState(() {
           ganeJuego = true;
           estado = "GANASTEEEE";
@@ -303,6 +306,9 @@ class _TableroPageState extends State<TableroPage> {
       else{
         await turnoJugador2(oponente);
         if(revisarGanador(2, selectedSequence)){
+          final completer = Completer<void>();
+          MostrarGanador(sequences2, 2, completer);
+          await completer.future;
           setState(() {
             //empezoJuego = false;
             perdiJuego = true;
@@ -406,7 +412,6 @@ class _TableroPageState extends State<TableroPage> {
 
 
 
-
   void tirarCarta(){
     //print("$name, apoyaste el ${cartaSeleccionadaTablero.numero} de ${cartaSeleccionadaTablero.palo} en el tablero que esta en la fila ${filaCartaSeleccionadaTablero} y columna ${columnaCartaSeleccionadaTablero}");
 
@@ -499,16 +504,8 @@ class _TableroPageState extends State<TableroPage> {
       cartasEnManoMia = [];
     });
     cartasEnManoMia.add(Carta("Wild", "Corazon"));
-    cartasEnManoMia.add(Carta("Wild", "Corazon"));
-    cartasEnManoMia.add(Carta("Wild", "Corazon"));
-    cartasEnManoMia.add(Carta("Wild", "Corazon"));
-    cartasEnManoMia.add(Carta("Wild", "Corazon"));
     entregarCarta(2);
-    entregarCarta(2);
-    entregarCarta(2);
-    entregarCarta(2);
-    entregarCarta(2);
-    for (int i=0; i<=1; i++){
+    for (int i=0; i<=5; i++){
       entregarCarta(1);
       entregarCarta(2);
     }
@@ -516,9 +513,9 @@ class _TableroPageState extends State<TableroPage> {
   }
 
 
-  bool sonIguales(List<Carta> lista1, List<Carta> lista2){
+  bool sonIguales(List<CartaConPos> lista1, List<CartaConPos> lista2){
     for(int i=0; i<lista1.length; i++){
-      if(lista1[i].numero != lista2[i].numero || lista1[i].palo != lista2[i].palo){
+      if(lista1[i].carta.numero != lista2[i].carta.numero || lista1[i].carta.palo != lista2[i].carta.palo || lista1[i].columna != lista2[i].columna || lista1[i].fila != lista2[i].fila){
         print("No son iguales");
         return false;
       }
@@ -526,11 +523,13 @@ class _TableroPageState extends State<TableroPage> {
     print("Son iguales");
     return true;
   }
-  bool tienenMasDeUnoEnComun(List<Carta> lista1, List<Carta> lista2){
+  bool tienenMasDeUnoEnComun(List<CartaConPos> lista1, List<CartaConPos> lista2){
     int cantEnComun = 0;
+    imprimirSequence(lista1);
+    imprimirSequence(lista2);
     for(int i=0; i<lista1.length; i++){
       for(int j=0; j<lista2.length; j++){
-        if(lista1[i].numero == lista2[j].numero && lista1[i].palo == lista2[j].palo){
+        if(lista1[i].carta.numero == lista2[j].carta.numero && lista1[i].carta.palo == lista2[j].carta.palo && lista1[i].columna == lista2[j].columna && lista1[i].fila == lista2[j].fila){
           cantEnComun++;
         }
       }
@@ -545,17 +544,20 @@ class _TableroPageState extends State<TableroPage> {
     }
   }
 
-  bool perteneceASequences(List<List<Carta>> sequencesYaHechos, List<Carta> sequence) {
-    for(List<Carta> lista in sequencesYaHechos){
+  bool perteneceASequences(List<List<CartaConPos>> sequencesYaHechos, List<CartaConPos> sequence) {
+    for(List<CartaConPos> lista in sequencesYaHechos){
       if(sonIguales(lista, sequence)) return true;
       if(tienenMasDeUnoEnComun(lista, sequence)) return true;
     }
     return false;
   }
-  void imprimirSequence(List<Carta> lista){
-    print("Lista: ${lista[0].numero} de ${lista[0].palo}, ${lista[1].numero} de ${lista[1].palo}, ${lista[2].numero} de ${lista[2].palo}, ${lista[3].numero} de ${lista[3].palo}, ${lista[4].numero} de ${lista[4].palo},");
+  void imprimirSequence(List<CartaConPos> lista){
+    print("Lista:");
+    for(CartaConPos cartapos in lista){
+      print("${cartapos.carta.numero} de ${cartapos.carta.palo}, en ${cartapos.fila},${cartapos.columna} ");
+    }
   }
-  void verSiLoAgrego(List<Carta> lista, int ficha){
+  void verSiLoAgrego(List<CartaConPos> lista, int ficha){
     if(ficha == 1){
       if(!perteneceASequences(sequences1, lista)){
         setState(() {
@@ -573,8 +575,8 @@ class _TableroPageState extends State<TableroPage> {
   }
 
   bool revisarGanador(int ficha, int sequences) {
-    Carta cartaAingresar = Carta("", "");
-    List<Carta> sequence = [];
+    CartaConPos cartaAingresar = CartaConPos(Carta("", ""), 0, 0);
+    List<CartaConPos> sequence = [];
     // Revisar filas
     for (int i = 0; i < 10; i++) {
       for (int j = 0; j <= 5; j++) {
@@ -588,7 +590,7 @@ class _TableroPageState extends State<TableroPage> {
         if (posibleganador) {
           sequence = [];
           for (int k = 0; k < 5; k++) {
-            cartaAingresar = Carta(matriz[i][j+k].numeroCarta, matriz[i][j+k].palo);
+            cartaAingresar = CartaConPos(Carta(matriz[i][j+k].numeroCarta, matriz[i][j+k].palo), j+k, i);
             sequence.add(cartaAingresar);
           }
           verSiLoAgrego(sequence, ficha);
@@ -608,7 +610,7 @@ class _TableroPageState extends State<TableroPage> {
         if (posibleganador) {
           sequence = [];
           for (int k = 0; k < 5; k++) {
-            cartaAingresar = Carta(matriz[j+k][i].numeroCarta, matriz[j+k][i].palo);
+            cartaAingresar = CartaConPos(Carta(matriz[j+k][i].numeroCarta, matriz[j+k][i].palo), i, j+k);
             sequence.add(cartaAingresar);
           }
           verSiLoAgrego(sequence, ficha);
@@ -629,7 +631,7 @@ class _TableroPageState extends State<TableroPage> {
         if (posibleganador) {
           sequence = [];
           for (int k = 0; k < 5; k++) {
-            cartaAingresar = Carta(matriz[i+k][j+k].numeroCarta, matriz[i+k][j+k].palo);
+            cartaAingresar =CartaConPos(Carta(matriz[i+k][j+k].numeroCarta, matriz[i+k][j+k].palo), j+k, i+k) ;
             sequence.add(cartaAingresar);
           }
           verSiLoAgrego(sequence, ficha);
@@ -650,7 +652,7 @@ class _TableroPageState extends State<TableroPage> {
         if (posibleganador) {
           sequence = [];
           for (int k = 0; k < 5; k++) {
-            cartaAingresar = Carta(matriz[i+k][j-k].numeroCarta, matriz[i+k][j-k].palo);
+            cartaAingresar =CartaConPos(Carta(matriz[i+k][j-k].numeroCarta, matriz[i+k][j-k].palo), j-k, i+k) ;
             sequence.add(cartaAingresar);
           }
           verSiLoAgrego(sequence, ficha);
@@ -666,7 +668,33 @@ class _TableroPageState extends State<TableroPage> {
 
 
 
+  void MostrarGanador(List<List<CartaConPos>> listasDelGanador, int ficha, Completer<void> completer) async{
+    String texto = "";
+    if(ficha == 1) texto = "¡GANASTE!";
+    else texto = "¡PERDISTE!";
 
+      for(int i=0; i<5; i++){
+        setState(() {
+          for(List<CartaConPos> lista in listasDelGanador){
+            for(CartaConPos carta in lista){
+              matriz[carta.fila][carta.columna].fichaPuesta = 3;
+              estado = texto;
+            }
+          }
+        });
+        await Future.delayed(Duration(milliseconds: 300));
+        setState(() {
+          for(List<CartaConPos> lista in listasDelGanador){
+            for(CartaConPos carta in lista){
+              matriz[carta.fila][carta.columna].fichaPuesta = ficha;
+              estado = "";
+            }
+          }
+        });
+        await Future.delayed(Duration(milliseconds: 300));
+      }
+      completer.complete();
+  }
 
 
   List<List<Triplet>> construirTablero(int nivel) {
@@ -921,10 +949,12 @@ class Resultado {
   Resultado (this.nivel, this.ganador, this.cantSecuences, this.tiempoJugado);
 }
 
-
-
-
-
+class CartaConPos{
+  Carta carta;
+  int columna;
+  int fila;
+  CartaConPos(this.carta, this.columna, this.fila);
+}
 
 
 

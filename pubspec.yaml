@@ -76,6 +76,7 @@ flutter:
     - assets/images/Ganaste.png
     - assets/images/Perdiste.png
     - assets/images/Perdiste1.png
+    - assets/images/Terminaste.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

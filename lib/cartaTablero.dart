@@ -8,6 +8,9 @@ class CartaTablero extends StatefulWidget {
   final Function(Carta) onTap;
   final Color? J1Color;
   final Color? J2Color;
+  final int columna;
+  final int fila;
+
 
   const CartaTablero({
     Key? key,
@@ -15,6 +18,8 @@ class CartaTablero extends StatefulWidget {
     required this.onTap,
     required this.J1Color,
     required this.J2Color,
+    required this.columna,
+    required this.fila,
   }) : super(key: key);
 
   @override
@@ -70,6 +75,8 @@ class _CartaTableroState extends State<CartaTablero> {
         return _buildCelda(widget.J1Color ?? Colors.white, imagePath, sizeNumber);
       case 2:
         return _buildCelda(widget.J2Color ?? Colors.white, imagePath, sizeNumber );
+      case 3: 
+        return _buildCelda(Colors.transparent, imagePath, sizeNumber);
       default:
         return _buildCelda(Colors.grey[200]!, imagePath, sizeNumber);
     }

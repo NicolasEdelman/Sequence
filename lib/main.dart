@@ -67,7 +67,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String name = '';
   double nivel = 1;
   MyAppState? appState;
-  int ultimoNivelDesbloqueado = 200;
+  int ultimoNivelDesbloqueado = 1;
+  int ultimoNivelDisponible = 24;
 
   @override
   void initState(){
@@ -104,19 +105,24 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void handleSiguienteNivel(int siguienteNiv){
-    setState(() {
-      nivel = siguienteNiv.toDouble();
-      startGame();
-    });
+    if(siguienteNiv > ultimoNivelDisponible){
+      terminasteElJuego();
+    }
+    else{
+      setState(() {
+        nivel = siguienteNiv.toDouble();
+        startGame();
+      });
+    }
   }
 
   void startGame() {
       setState(() {
-        isPlaying = true;
         selectedIndex = 2;
       });
       Future.delayed(Duration(seconds: 3), (){
         setState(() {
+          isPlaying = true;
           selectedIndex = 1;
         });
       });
@@ -143,6 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   _dynamicTitle = widget.title;
                   isPlaying = false;
                   selectedIndex = 0;
+                  selectedSequence = 1;
                 });
               },
               child: Text('Salir'),
@@ -181,6 +188,49 @@ class _MyHomePageState extends State<MyHomePage> {
                       Navigator.of(context).pop(); // Cierra el cuadro de diálogo
                     },
                     child: Text('Entendido'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void terminasteElJuego(){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: SingleChildScrollView(
+            child: Dialog.fullscreen(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset("assets/images/Terminaste.png"),
+                ],
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            Container(
+              height: 40,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      setState(() {
+                        _dynamicTitle = widget.title;
+                        isPlaying = false;
+                        selectedIndex = 0;
+                        selectedSequence = 1;
+                      });// Cierra el cuadro de diálogo
+                    },
+                    child: Text('¡Muchas gracias!'),
                   ),
                 ],
               ),
