@@ -59,6 +59,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
   String _dynamicTitle = '';
   var selectedIndex = 0;
   bool isPlaying = false;
@@ -67,14 +68,24 @@ class _MyHomePageState extends State<MyHomePage> {
   String name = '';
   double nivel = 1;
   MyAppState? appState;
-  int ultimoNivelDesbloqueado = 1;
+  int ultimoNivelDesbloqueado = 24;
   int ultimoNivelDisponible = 24;
 
   @override
   void initState(){
     super.initState();
+    //cargarPreferencias();
     _dynamicTitle = widget.title;
   }
+
+  /*cargarPreferencias() async{
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    setState(() {
+      ultimoNivelDesbloqueado = pref.getInt("ultimoNivelDesbloqueado")??1;
+    });
+  }*/
+
+
 
   void handleNameChanged(String newName) {
     setState(() {
@@ -97,12 +108,19 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void handleMatchFinished(Resultado resultado){
+  void handleMatchFinished(Resultado resultado) async{
     print("Termino el partido y el ganador fue el jugador  ${resultado.ganador}");
-    if(resultado.ganador == 1 && resultado.nivel == ultimoNivelDesbloqueado){
-      ultimoNivelDesbloqueado++;
-    }
+    //SharedPreferences pref = await SharedPreferences.getInstance();
+    setState(() {
+      if(resultado.ganador == 1 && resultado.nivel == ultimoNivelDesbloqueado){
+        ultimoNivelDesbloqueado++;
+        //pref.setInt("ultimoNivelDesbloqueado", ultimoNivelDesbloqueado);
+      }
+    });
   }
+
+
+
 
   void handleSiguienteNivel(int siguienteNiv){
     if(siguienteNiv > ultimoNivelDisponible){

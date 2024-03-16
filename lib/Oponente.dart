@@ -28,29 +28,29 @@ class Oponente{
       case 3: setStrategy(TirarCartaStrategyN1()); tiempoTurnoUsuario = 20;
       case 4: setStrategy(TirarCartaStrategyN1()); tiempoTurnoUsuario = 10;
 
-      case 5: setStrategy(TirarCartaStrategyN2()); tiempoTurnoUsuario = 40;
-      case 6: setStrategy(TirarCartaStrategyN2()); tiempoTurnoUsuario = 30;
-      case 7: setStrategy(TirarCartaStrategyN2()); tiempoTurnoUsuario = 20;
+      case 5: setStrategy(TirarCartaStrategyN2()); tiempoTurnoUsuario = 30;
+      case 6: setStrategy(TirarCartaStrategyN2()); tiempoTurnoUsuario = 20;
+      case 7: setStrategy(TirarCartaStrategyN2()); tiempoTurnoUsuario = 40;
       case 8: setStrategy(TirarCartaStrategyN2()); tiempoTurnoUsuario = 10;
 
-      case 9: setStrategy(TirarCartaStrategyN3()); tiempoTurnoUsuario = 40;
-      case 10: setStrategy(TirarCartaStrategyN3()); tiempoTurnoUsuario = 30;
-      case 11: setStrategy(TirarCartaStrategyN3()); tiempoTurnoUsuario = 20;
+      case 9: setStrategy(TirarCartaStrategyN3()); tiempoTurnoUsuario = 30;
+      case 10: setStrategy(TirarCartaStrategyN3()); tiempoTurnoUsuario = 20;
+      case 11: setStrategy(TirarCartaStrategyN3()); tiempoTurnoUsuario = 40;
       case 12: setStrategy(TirarCartaStrategyN3()); tiempoTurnoUsuario = 10;
 
-      case 13: setStrategy(TirarCartaStrategyN4()); tiempoTurnoUsuario = 40;
-      case 14: setStrategy(TirarCartaStrategyN4()); tiempoTurnoUsuario = 30;
-      case 15: setStrategy(TirarCartaStrategyN4()); tiempoTurnoUsuario = 20;
+      case 13: setStrategy(TirarCartaStrategyN4()); tiempoTurnoUsuario = 30;
+      case 14: setStrategy(TirarCartaStrategyN4()); tiempoTurnoUsuario = 20;
+      case 15: setStrategy(TirarCartaStrategyN4()); tiempoTurnoUsuario = 40;
       case 16: setStrategy(TirarCartaStrategyN4()); tiempoTurnoUsuario = 10;
 
-      case 17: setStrategy(TirarCartaStrategyN5()); tiempoTurnoUsuario = 40;
-      case 18: setStrategy(TirarCartaStrategyN5()); tiempoTurnoUsuario = 30;
-      case 19: setStrategy(TirarCartaStrategyN5()); tiempoTurnoUsuario = 20;
+      case 17: setStrategy(TirarCartaStrategyN5()); tiempoTurnoUsuario = 30;
+      case 18: setStrategy(TirarCartaStrategyN5()); tiempoTurnoUsuario = 20;
+      case 19: setStrategy(TirarCartaStrategyN5()); tiempoTurnoUsuario = 40;
       case 20: setStrategy(TirarCartaStrategyN5()); tiempoTurnoUsuario = 10;
 
-      case 21: setStrategy(TirarCartaStrategyN6()); tiempoTurnoUsuario = 40;
-      case 22: setStrategy(TirarCartaStrategyN6()); tiempoTurnoUsuario = 30;
-      case 23: setStrategy(TirarCartaStrategyN6()); tiempoTurnoUsuario = 20;
+      case 21: setStrategy(TirarCartaStrategyN6()); tiempoTurnoUsuario = 30;
+      case 22: setStrategy(TirarCartaStrategyN6()); tiempoTurnoUsuario = 20;
+      case 23: setStrategy(TirarCartaStrategyN6()); tiempoTurnoUsuario = 40;
       case 24: setStrategy(TirarCartaStrategyN6()); tiempoTurnoUsuario = 10;
 
     }

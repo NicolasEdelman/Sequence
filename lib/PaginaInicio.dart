@@ -44,132 +44,139 @@ class _GeneratorPageState extends State<GeneratorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/images/Fondo1.png"),
-            fit: BoxFit.cover,
+      body: SingleChildScrollView(
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/images/Fondo1.png"),
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "SEQUENCE",
-                  style: TextStyle(
-                    fontSize: 65,
-                    color: mainColor,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Roboto',
-                    shadows: [
-                      Shadow(
-                        blurRadius: 2,
-                        color: Colors.white.withOpacity(0.5),
-                        offset: Offset(1, 2),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).viewInsets.bottom),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "SEQUENCE",
+                    style: TextStyle(
+                      fontSize: 65,
+                      color: mainColor,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Roboto',
+                      shadows: [
+                        Shadow(
+                          blurRadius: 2,
+                          color: Colors.white.withOpacity(0.5),
+                          offset: Offset(1, 2),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      hintText: 'Ingrese su nombre',
+                      labelText: 'Nombre',
+                      border: OutlineInputBorder(),
+                      errorText: nombreVacio ? "El nombre no puede estar vacío" : null,
+                    ),
+                    onChanged: (value) {
+                      widget.onNameChanged(value);
+                      setState(() {
+                        nombreVacio = value.isEmpty;
+                      });
+                    },
+                  ),
+                  TextField(
+
+                  ),
+                  SizedBox(height: 20),
+                  ColorSelector(
+                    onColorsSelected: (Color? color1) {
+                      setState(() {
+                        mainColor = color1;
+                      });
+                      widget.onColorChanged(color1);
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  Text("Nivel:", style: TextStyle(color: Colors.white, fontSize: 20)),
+                  Slider(
+                    activeColor: mainColor,
+                    value: _currentSliderValue,
+                    max: ultimoNivelDisponible.toDouble(),
+                    divisions: ultimoNivelDisponible,
+                    label: _currentSliderValue.round() != 0
+                        ? "${_currentSliderValue.round()}"
+                        : "Reglas",
+                    onChanged: (double value) {
+                      if(value <= ultimoNivelDesbloqueado){
+                        widget.onLevelChanged(value);
+                        setState(() {
+                          _currentSliderValue = value;
+                        });
+                      }
+                    },
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Radio(
+                        value: 1,
+                        groupValue: selectedSequence,
+                        activeColor: Colors.white,
+                        onChanged: (int? value) {
+                          selectedSequence = value!;
+                          widget.onCantSequencesChanged(1);
+                        },
                       ),
+                      Text('1 Secuencia', style: TextStyle(color: Colors.white),),
+                      Radio(
+                        value: 2,
+                        groupValue: selectedSequence,
+                        activeColor: Colors.white,
+                        onChanged: (int? value) {
+                          setState(() {
+                            selectedSequence = value!;
+                            widget.onCantSequencesChanged(2);
+                          });
+                        },
+                      ),
+                      Text('2 Secuencias', style: TextStyle(color: Colors.white),),
                     ],
                   ),
-                ),
-                SizedBox(height: 20),
-                TextField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    hintText: 'Ingrese su nombre',
-                    labelText: 'Nombre',
-                    border: OutlineInputBorder(),
-                    errorText: nombreVacio ? "El nombre no puede estar vacío" : null,
-                  ),
-                  onChanged: (value) {
-                    widget.onNameChanged(value);
-                    setState(() {
-                      nombreVacio = value.isEmpty;
-                    });
-                  },
-                ),
-                SizedBox(height: 20),
-                ColorSelector(
-                  onColorsSelected: (Color? color1) {
-                    setState(() {
-                      mainColor = color1;
-                    });
-                    widget.onColorChanged(color1);
-                  },
-                ),
-                SizedBox(height: 20),
-                Text("Nivel:", style: TextStyle(color: Colors.white, fontSize: 20)),
-                Slider(
-                  activeColor: mainColor,
-                  value: _currentSliderValue,
-                  max: ultimoNivelDisponible.toDouble(),
-                  divisions: ultimoNivelDisponible,
-                  label: _currentSliderValue.round() != 0
-                      ? "${_currentSliderValue.round()}"
-                      : "Reglas",
-                  onChanged: (double value) {
-                    if(value <= ultimoNivelDesbloqueado){
-                      widget.onLevelChanged(value);
-                      setState(() {
-                        _currentSliderValue = value;
-                      });
-                    }
-                  },
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Radio(
-                      value: 1,
-                      groupValue: selectedSequence,
-                      activeColor: Colors.white,
-                      onChanged: (int? value) {
-                        selectedSequence = value!;
-                        widget.onCantSequencesChanged(1);
-                      },
-                    ),
-                    Text('1 Secuencia', style: TextStyle(color: Colors.white),),
-                    Radio(
-                      value: 2,
-                      groupValue: selectedSequence,
-                      activeColor: Colors.white,
-                      onChanged: (int? value) {
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      String name = _nameController.text.trim();
+                      //name = "Nico";
+                      if(name.isEmpty){
                         setState(() {
-                          selectedSequence = value!;
-                          widget.onCantSequencesChanged(2);
+                          nombreVacio = true;
                         });
-                      },
+                      }
+                      else if(_currentSliderValue.round() == 0){
+                        panelReglas();
+                      }
+                      else{
+                        widget.onStartGame();
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(200, 50), // Establecer el tamaño del botón
                     ),
-                    Text('2 Secuencias', style: TextStyle(color: Colors.white),),
-                  ],
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    String name = _nameController.text.trim();
-                    if(name.isEmpty){
-                      setState(() {
-                        nombreVacio = true;
-                      });
-                    }
-                    else if(_currentSliderValue.round() == 0){
-                      panelReglas();
-                    }
-                    else{
-                      widget.onStartGame();
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(200, 50), // Establecer el tamaño del botón
+                    child: Text("Play", style: TextStyle(fontSize: 20, color: mainColor),),
                   ),
-                  child: Text("Play", style: TextStyle(fontSize: 20, color: mainColor),),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
+      )
     );
   }
   void panelReglas(){

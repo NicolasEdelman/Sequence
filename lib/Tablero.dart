@@ -106,9 +106,9 @@ class _TableroPageState extends State<TableroPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Padding(padding: EdgeInsets.only(top: 10),),
+                Padding(padding: EdgeInsets.only(top: 3),),
                 Container(
-                  height: 60,
+                  height: 50,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: 7,
@@ -120,7 +120,7 @@ class _TableroPageState extends State<TableroPage> {
                   ),
                 ),
                 Text("Se juega a $selectedSequence sequences"),
-                Padding(padding: EdgeInsets.only(top: 10),),
+                Padding(padding: EdgeInsets.only(top: 5),),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -233,14 +233,13 @@ class _TableroPageState extends State<TableroPage> {
                 fit: BoxFit.cover,
               ),
             ),
-
-          /*if (perdiJuego)
+          if (perdiJuego)
             Center(
               child: Image.asset(
                 "assets/images/Perdiste1.png",
                 fit: BoxFit.cover,
               ),
-            ),*/
+            ),
         ],
       ),
     );
@@ -487,12 +486,15 @@ class _TableroPageState extends State<TableroPage> {
         Carta cartaADar = mazo.darPrimerCarta();
         if(cartaADar.numero == "Wild"){
           if(cantWilds >= 1) cartasEnManoMia.add(mazo.darPrimerCarta());
-          else cartasEnManoMia.add(cartaADar); cantWilds ++;
+          else{
+            cartasEnManoMia.add(cartaADar);
+            cantWilds ++;
+          }
         }
         else cartasEnManoMia.add(cartaADar);
 
       }
-      if(jugador == 2){
+      else if(jugador == 2){
         cartasEnManoOponente.add(mazo.darPrimerCarta());
       }
     });
@@ -503,9 +505,9 @@ class _TableroPageState extends State<TableroPage> {
       mazo.mezclarMazo();
       cartasEnManoMia = [];
     });
-    cartasEnManoMia.add(Carta("Wild", "Corazon"));
-    entregarCarta(2);
-    for (int i=0; i<=5; i++){
+    //cartasEnManoMia.add(Carta("Wild", "Corazon"));
+    //entregarCarta(2);
+    for (int i=0; i<=6; i++){
       entregarCarta(1);
       entregarCarta(2);
     }
@@ -784,9 +786,9 @@ class _TableroPageState extends State<TableroPage> {
     ];
     matriz[9] = [
       Triplet(-2, "0", "Joker"),
-      Triplet(1, "A", "Diamante"),
-      Triplet(1, "K", "Diamante"),
-      Triplet(1, "Q", "Diamante"),
+      Triplet(0, "A", "Diamante"),
+      Triplet(0, "K", "Diamante"),
+      Triplet(0, "Q", "Diamante"),
       for (int i = 10; i >= 6; i--) Triplet(0,i.toString(), "Diamante"),
       Triplet(-2,"0", "Joker"),
     ];
