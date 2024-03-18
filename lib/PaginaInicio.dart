@@ -66,7 +66,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
             ),
           ),
           child: Padding(
-            padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.fromLTRB(20, 0, 20, 120),
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
