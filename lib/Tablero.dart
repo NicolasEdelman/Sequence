@@ -485,11 +485,14 @@ class _TableroPageState extends State<TableroPage> {
       if(jugador == 1){
         Carta cartaADar = mazo.darPrimerCarta();
         if(cartaADar.numero == "Wild"){
-          if(cantWilds >= 1) cartasEnManoMia.add(mazo.darPrimerCarta());
+          if(cantWilds >= 1 || nivelOponente > 24) cartasEnManoMia.add(mazo.darPrimerCarta());
           else{
             cartasEnManoMia.add(cartaADar);
             cantWilds ++;
           }
+        }
+        else if(cartaADar.numero == "Remove" && nivelOponente == 30){
+          cartasEnManoMia.add(mazo.darPrimerCarta());
         }
         else cartasEnManoMia.add(cartaADar);
 
@@ -505,9 +508,9 @@ class _TableroPageState extends State<TableroPage> {
       mazo.mezclarMazo();
       cartasEnManoMia = [];
     });
-    //cartasEnManoMia.add(Carta("Wild", "Corazon"));
-    //entregarCarta(2);
-    for (int i=0; i<=6; i++){
+    cartasEnManoMia.add(Carta("Wild", "Corazon"));
+    entregarCarta(2);
+    for (int i=0; i<=5; i++){
       entregarCarta(1);
       entregarCarta(2);
     }
@@ -786,13 +789,13 @@ class _TableroPageState extends State<TableroPage> {
     ];
     matriz[9] = [
       Triplet(-2, "0", "Joker"),
-      Triplet(0, "A", "Diamante"),
-      Triplet(0, "K", "Diamante"),
-      Triplet(0, "Q", "Diamante"),
+      Triplet(1, "A", "Diamante"),
+      Triplet(1, "K", "Diamante"),
+      Triplet(1, "Q", "Diamante"),
       for (int i = 10; i >= 6; i--) Triplet(0,i.toString(), "Diamante"),
       Triplet(-2,"0", "Joker"),
     ];
-    if(nivel % 4 == 1 && nivel != 1) desordenarMatriz(matriz);
+    if(nivel % 4 == 3) desordenarMatriz(matriz);
     else if(nivel % 2 == 0) voltearMatriz(matriz);
     return matriz;
   }

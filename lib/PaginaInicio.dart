@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GeneratorPage extends StatefulWidget {
   final VoidCallback onStartGame;
@@ -27,13 +28,24 @@ class _GeneratorPageState extends State<GeneratorPage> {
   double _currentSliderValue = 1;
   Color? mainColor;
   int ultimoNivelDesbloqueado;
-  int ultimoNivelDisponible = 24;
+  int ultimoNivelDisponible = 28;
 
   _GeneratorPageState({
     required this.mainColor,
     required this.ultimoNivelDesbloqueado
-  }){}
+  }){
+    initSharedPreferences();
+  }
+  Future<void> initSharedPreferences() async {
+    await leerDatos();
+  }
 
+  Future<void> leerDatos() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      ultimoNivelDesbloqueado = prefs.getInt('ultimoNivelDesbloqueado') ?? 1;
+    });
+  }
 
   @override
   void dispose() {
@@ -90,9 +102,6 @@ class _GeneratorPageState extends State<GeneratorPage> {
                         nombreVacio = value.isEmpty;
                       });
                     },
-                  ),
-                  TextField(
-
                   ),
                   SizedBox(height: 20),
                   ColorSelector(

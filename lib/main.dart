@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:myapp/SplashScreenCargaNivel.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Tablero.dart';
 import 'PaginaInicio.dart';
 
@@ -15,6 +16,7 @@ void main() {
       child: const MyApp(),
     ),
   );
+
 }
 
 class MyApp extends StatelessWidget {
@@ -68,24 +70,38 @@ class _MyHomePageState extends State<MyHomePage> {
   String name = '';
   double nivel = 1;
   MyAppState? appState;
-  int ultimoNivelDesbloqueado = 24;
-  int ultimoNivelDisponible = 24;
+  int ultimoNivelDesbloqueado = 1;
+  int ultimoNivelDisponible = 30;
+
 
   @override
   void initState(){
     super.initState();
-    //cargarPreferencias();
     _dynamicTitle = widget.title;
+    initSharedPreferences();
+  }
+  Future<void> initSharedPreferences() async {
+    await leerDatos();
   }
 
-  /*cargarPreferencias() async{
-    SharedPreferences pref = await SharedPreferences.getInstance();
+  Future<void> leerDatos() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    //prefs.remove('ultimoNivelDesbloqueado'); // Para resetear lo que hay en la variable en Disco
     setState(() {
-      ultimoNivelDesbloqueado = pref.getInt("ultimoNivelDesbloqueado")??1;
+      ultimoNivelDesbloqueado = prefs.getInt('ultimoNivelDesbloqueado') ?? 1;
     });
-  }*/
+  }
+
+  void cargarDatos() async{
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('ultimoNivelDesbloqueado', ultimoNivelDesbloqueado);
+    int nuevoNivel = prefs.getInt('ultimoNivelDesbloqueado') ?? 1;
+    setState(() {
+      ultimoNivelDesbloqueado = nuevoNivel;
+    });
 
 
+  }
 
   void handleNameChanged(String newName) {
     setState(() {
@@ -110,17 +126,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void handleMatchFinished(Resultado resultado) async{
     print("Termino el partido y el ganador fue el jugador  ${resultado.ganador}");
-    //SharedPreferences pref = await SharedPreferences.getInstance();
     setState(() {
       if(resultado.ganador == 1 && resultado.nivel == ultimoNivelDesbloqueado){
         ultimoNivelDesbloqueado++;
-        //pref.setInt("ultimoNivelDesbloqueado", ultimoNivelDesbloqueado);
+        print("Pase de niveeell: $ultimoNivelDesbloqueado");
       }
+      cargarDatos();
     });
   }
-
-
-
 
   void handleSiguienteNivel(int siguienteNiv){
     if(siguienteNiv > ultimoNivelDisponible){
@@ -266,6 +279,9 @@ class _MyHomePageState extends State<MyHomePage> {
     switch (selectedIndex){
       case 0:
         titlebar = "";
+        setState(() {
+          isPlaying = false;
+        });
         page = GeneratorPage(
           onStartGame: startGame,
           onNameChanged: handleNameChanged,
@@ -278,6 +294,9 @@ class _MyHomePageState extends State<MyHomePage> {
         break;
       case 1:
         titlebar = "${name} - Nivel ${nivel.toInt()}";
+        setState(() {
+          isPlaying = true;
+        });
         page = TableroPage(
           J1selectedColor: J1selectedColor,
           J2selectedColor: Colors.white,
@@ -290,10 +309,14 @@ class _MyHomePageState extends State<MyHomePage> {
         break;
       case 2:
         titlebar = "${name} - Nivel ${nivel.toInt()}";
+        setState(() {
+          isPlaying = false;
+        });
         page = SplashScreen(
           nivel: nivel.toInt(),
           cantidadSequencias: selectedSequence,
           j1Color: J1selectedColor,
+
         );
       default:
         throw UnimplementedError('No widget for $selectedIndex');
