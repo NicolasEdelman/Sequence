@@ -71,15 +71,17 @@ class _MyHomePageState extends State<MyHomePage> {
   String name = '';
   double nivel = 1;
   MyAppState? appState;
-  int ultimoNivelDesbloqueado = 1;
+  int ultimoNivelDesbloqueado = 30;
   int ultimoNivelDisponible = 30;
+  int universoActual = 1;
+  int ultimoUniversoDisponible = 1;
 
 
   @override
   void initState(){
     super.initState();
     _dynamicTitle = widget.title;
-    initSharedPreferences();
+    //initSharedPreferences();
   }
   Future<void> initSharedPreferences() async {
     await leerDatos();
@@ -96,6 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void cargarDatos() async{
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('ultimoNivelDesbloqueado', ultimoNivelDesbloqueado);
+    //await prefs.setInt("ultimoNivelDesbloqueado", ultimoNivelDesbloqueado);
     int nuevoNivel = prefs.getInt('ultimoNivelDesbloqueado') ?? 1;
     setState(() {
       ultimoNivelDesbloqueado = nuevoNivel;
@@ -124,15 +127,19 @@ class _MyHomePageState extends State<MyHomePage> {
       nivel = nuevoNivel;
     });
   }
+  void handleUniverseChanged(int nuevoUniverso){
+    setState(() {
+      universoActual = nuevoUniverso;
+    });
+  }
 
   void handleMatchFinished(Resultado resultado) async{
     print("Termino el partido y el ganador fue el jugador  ${resultado.ganador}");
     setState(() {
       if(resultado.ganador == 1 && resultado.nivel == ultimoNivelDesbloqueado){
         ultimoNivelDesbloqueado++;
-        print("Pase de niveeell: $ultimoNivelDesbloqueado");
       }
-      cargarDatos();
+      //cargarDatos();
     });
   }
 
@@ -231,6 +238,25 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void terminasteElJuego(){
+    setState(() {
+      if(universoActual == ultimoUniversoDisponible){
+        ultimoUniversoDisponible++;
+      }
+    });
+    String completadoPath = "";
+    String texto = "";
+    switch (universoActual){
+      case 1:
+        completadoPath = "assets/images/Completado1.png";
+        texto = "¡Viajar al proximo universo!";
+      case 2:
+        completadoPath = "assets/images/Completado2.png";
+        texto = "¡Viajar al proximo universo!";
+      case 3:
+        completadoPath = "assets/images/Completado3.png";
+        texto = "¡Completaste el juego!";
+
+    }
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -241,7 +267,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset("assets/images/Terminaste.png"),
+                  Image.asset(completadoPath),
                 ],
               ),
             ),
@@ -260,9 +286,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         isPlaying = false;
                         selectedIndex = 0;
                         selectedSequence = 1;
+                        if(universoActual<3)universoActual++;
                       });// Cierra el cuadro de diálogo
                     },
-                    child: Text('¡Muchas gracias!'),
+                    child: Text(texto),
                   ),
                 ],
               ),
@@ -289,8 +316,11 @@ class _MyHomePageState extends State<MyHomePage> {
           onColorChanged: handleColorChanged,
           onCantSequencesChanged: handleCantSequencesChanged,
           onLevelChanged: handleLevelChanged,
+          onUniverseChanged: handleUniverseChanged,
           mainColor: J1selectedColor!,
           ultimoNivelDesbloqueado: ultimoNivelDesbloqueado,
+          universo: universoActual,
+          ultimoUniversoDesbloqueado: ultimoUniversoDisponible,
         );
         break;
       case 1:
@@ -301,9 +331,9 @@ class _MyHomePageState extends State<MyHomePage> {
         page = TableroPage(
           J1selectedColor: J1selectedColor,
           J2selectedColor: Colors.white,
-          selectedSequence: selectedSequence,
           name: name,
           level: nivel,
+          universo: universoActual,
           onMatchFinished: handleMatchFinished,
           siguienteNivel: handleSiguienteNivel,
         );

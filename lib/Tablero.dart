@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'Mazo.dart';
 import 'cartaTablero.dart';
 import 'Oponente.dart';
-import 'dart:math';
-import 'dart:io';
 
 void main() {
   runApp(
@@ -21,18 +19,18 @@ void main() {
 class TableroPage extends StatefulWidget {
   final Color? J1selectedColor;
   final Color? J2selectedColor;
-  final int selectedSequence;
   final String name;
   final double level;
+  final int universo;
   final Function(Resultado) onMatchFinished;
   final Function(int) siguienteNivel;
 
   const TableroPage({
     required this.J1selectedColor,
     required this.J2selectedColor,
-    required this.selectedSequence,
     required this.name,
     required this.level,
+    required this.universo,
     required this.onMatchFinished,
     required this.siguienteNivel,
   });
@@ -41,9 +39,9 @@ class TableroPage extends StatefulWidget {
   State<TableroPage> createState() => _TableroPageState(
     J1selectedColor: J1selectedColor,
     J2selectedColor: J2selectedColor,
-    selectedSequence: selectedSequence,
     name: name,
     level: level,
+    universo: universo,
   );
 
 }
@@ -52,7 +50,6 @@ class _TableroPageState extends State<TableroPage> {
 
   Color? J1selectedColor;
   Color? J2selectedColor;
-  int selectedSequence;
   String name;
   double level = 1;
 
@@ -75,6 +72,8 @@ class _TableroPageState extends State<TableroPage> {
   Carta ultimaCartaTirada = Carta("0", "");
   StreamController<int> _timerController = StreamController<int>();
   int nivelOponente = 0;
+  int universo = 1;
+  int cantSequences = 0;
   Oponente oponente = Oponente(0, null);
   int cantWilds = 0;
   List<List<CartaConPos>> sequences1 = [];
@@ -82,24 +81,41 @@ class _TableroPageState extends State<TableroPage> {
 
 
 
+
   _TableroPageState({
     required this.J1selectedColor,
     required this.J2selectedColor,
-    required this.selectedSequence,
     required this.name,
-    required this.level}) {
+    required this.level,
+    required this.universo,}) {
     matriz = construirTablero(this.level.toInt());
   }
 
   @override
   Widget build(BuildContext context) {
+    String fondoPath = "";
+    Color? colorLetras;
+    switch (universo){
+      case 1:
+        fondoPath = "assets/images/Fondo1.png";
+        colorLetras = Colors.black;
+        cantSequences = 1;
+      case 2:
+        fondoPath = "assets/images/FondoVerde.png";
+        colorLetras = Colors.white;
+        cantSequences = 2;
+      case 3:
+        fondoPath = "assets/images/FondoNegro.png";
+        colorLetras = Colors.white;
+        cantSequences = 1;
+    }
     return Scaffold(
       body: Stack(
         children: [
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("assets/images/Fondo1.png"),
+                image: AssetImage(fondoPath),
                 fit: BoxFit.cover,
               ),
             ),
@@ -119,7 +135,7 @@ class _TableroPageState extends State<TableroPage> {
                     },
                   ),
                 ),
-                Text("Se juega a $selectedSequence sequences"),
+                Text("Se juega a $universo sequences", style: TextStyle(color: colorLetras),),
                 Padding(padding: EdgeInsets.only(top: 5),),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -154,7 +170,7 @@ class _TableroPageState extends State<TableroPage> {
                     },
                   ),
                 ),
-                if(estado != "" && !ganeJuego && !perdiJuego) Text(estado),
+                if(estado != "" && !ganeJuego && !perdiJuego) Text(estado, style: TextStyle(color: colorLetras)),
                 SizedBox(height: 10),
                 if(!empezoJuego) ElevatedButton(onPressed: jugarPrimeraVez, child: Text("Start")),
                 if(ganeJuego) Row(
@@ -171,20 +187,20 @@ class _TableroPageState extends State<TableroPage> {
                     ElevatedButton(onPressed: reiniciar, child: Text("Volver a intentar")),
                   ],
                 ),
-                if(miTurno) Text("Es tu turno!"),
+                if(miTurno) Text("Es tu turno!", style: TextStyle(color: colorLetras)),
 
                 StreamBuilder<int>(
                   stream: _timerController.stream,
                   initialData: -1 ,// Establece el valor inicial del temporizador
                   builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
                     if (snapshot.data == 0) {
-                      return Text('Tiempo agotado');
+                      return Text('Tiempo agotado', style: TextStyle(color: colorLetras));
                     }
                     else if(snapshot.data == -1){
                       return Text("");
                     }
                     else {
-                      return Text('Te quedan ${snapshot.data} segundos');
+                      return Text('Te quedan ${snapshot.data} segundos', style: TextStyle(color: colorLetras));
                     }
                   },
                 ),
@@ -291,20 +307,20 @@ class _TableroPageState extends State<TableroPage> {
     while(!ganeJuego && !perdiJuego){
       await turnoJugador1();
       //await turnoJugador1Maquina(oponente);
-      if(revisarGanador(1, selectedSequence)){
+      if(revisarGanador(1, cantSequences)){
         final completer = Completer<void>();
         MostrarGanador(sequences1, 1, completer);
         await completer.future;
         setState(() {
           ganeJuego = true;
           estado = "GANASTEEEE";
-          Resultado resultado = Resultado(nivelOponente, 1, selectedSequence, 0);
+          Resultado resultado = Resultado(nivelOponente, 1, cantSequences, 0);
           widget.onMatchFinished(resultado);
         });
       }
       else{
         await turnoJugador2(oponente);
-        if(revisarGanador(2, selectedSequence)){
+        if(revisarGanador(2, cantSequences)){
           final completer = Completer<void>();
           MostrarGanador(sequences2, 2, completer);
           await completer.future;
@@ -312,7 +328,7 @@ class _TableroPageState extends State<TableroPage> {
             //empezoJuego = false;
             perdiJuego = true;
             estado = "PERDISTEEE";
-            Resultado resultado = Resultado(nivelOponente, 2, selectedSequence, 0);
+            Resultado resultado = Resultado(nivelOponente, 2, cantSequences, 0);
             widget.onMatchFinished(resultado);
           });
         }
@@ -509,8 +525,14 @@ class _TableroPageState extends State<TableroPage> {
       cartasEnManoMia = [];
     });
     cartasEnManoMia.add(Carta("Wild", "Corazon"));
+    cartasEnManoMia.add(Carta("Wild", "Corazon"));
+    cartasEnManoMia.add(Carta("Wild", "Corazon"));
+    cartasEnManoMia.add(Carta("Wild", "Corazon"));
     entregarCarta(2);
-    for (int i=0; i<=5; i++){
+    entregarCarta(2);
+    entregarCarta(2);
+    entregarCarta(2);
+    for (int i=0; i<=2; i++){
       entregarCarta(1);
       entregarCarta(2);
     }

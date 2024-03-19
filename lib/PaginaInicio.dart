@@ -8,15 +8,20 @@ class GeneratorPage extends StatefulWidget {
   final Function(Color?) onColorChanged;
   final Function(int) onCantSequencesChanged;
   final Function(double) onLevelChanged;
+  final Function(int) onUniverseChanged;
   final Color mainColor;
   final int ultimoNivelDesbloqueado;
+  final int universo;
+  final int ultimoUniversoDesbloqueado;
 
-  const GeneratorPage({Key? key, required this.onStartGame, required this.onNameChanged, required this.onColorChanged, required this.onCantSequencesChanged, required this.onLevelChanged, required this.mainColor, required this.ultimoNivelDesbloqueado}) : super(key: key);
+  const GeneratorPage({Key? key, required this.onStartGame, required this.onNameChanged, required this.onColorChanged, required this.onCantSequencesChanged, required this.onLevelChanged, required this.onUniverseChanged, required this.mainColor, required this.ultimoNivelDesbloqueado, required this.universo, required this.ultimoUniversoDesbloqueado}) : super(key: key);
 
   @override
   State<GeneratorPage> createState() => _GeneratorPageState(
     mainColor: mainColor,
-    ultimoNivelDesbloqueado: ultimoNivelDesbloqueado
+    ultimoNivelDesbloqueado: ultimoNivelDesbloqueado,
+    universo: universo,
+      ultimoUniversoDesbloqueado: ultimoUniversoDesbloqueado
   );
 }
 
@@ -28,13 +33,17 @@ class _GeneratorPageState extends State<GeneratorPage> {
   double _currentSliderValue = 1;
   Color? mainColor;
   int ultimoNivelDesbloqueado;
-  int ultimoNivelDisponible = 28;
+  int ultimoNivelDisponible = 30;
+  int universo;
+  int ultimoUniversoDesbloqueado;
 
   _GeneratorPageState({
     required this.mainColor,
-    required this.ultimoNivelDesbloqueado
+    required this.ultimoNivelDesbloqueado,
+    required this.universo,
+    required this.ultimoUniversoDesbloqueado
   }){
-    initSharedPreferences();
+    //initSharedPreferences();
   }
   Future<void> initSharedPreferences() async {
     await leerDatos();
@@ -55,13 +64,22 @@ class _GeneratorPageState extends State<GeneratorPage> {
 
   @override
   Widget build(BuildContext context) {
+    String fondoPath = "";
+    switch (universo){
+      case 1:
+        fondoPath = "assets/images/Fondo1.png";
+      case 2:
+        fondoPath = "assets/images/FondoVerde.png";
+      case 3:
+        fondoPath = "assets/images/FondoNegro.png";
+    }
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/images/Fondo1.png"),
+              image: AssetImage(fondoPath),
               fit: BoxFit.cover,
             ),
           ),
@@ -87,6 +105,11 @@ class _GeneratorPageState extends State<GeneratorPage> {
                       ],
                     ),
                   ),
+
+                  Text("UNIVERSO $universo", style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),),
                   SizedBox(height: 20),
                   TextField(
                     controller: _nameController,
@@ -95,6 +118,8 @@ class _GeneratorPageState extends State<GeneratorPage> {
                       labelText: 'Nombre',
                       border: OutlineInputBorder(),
                       errorText: nombreVacio ? "El nombre no puede estar vacío" : null,
+                      hintStyle: TextStyle(color: Colors.white),
+                      labelStyle: TextStyle(color: Colors.white),
                     ),
                     onChanged: (value) {
                       widget.onNameChanged(value);
@@ -131,7 +156,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
                       }
                     },
                   ),
-                  Row(
+                  /*Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Radio(
@@ -157,7 +182,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
                       ),
                       Text('2 Secuencias', style: TextStyle(color: Colors.white),),
                     ],
-                  ),
+                  ),*/
                   SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
@@ -179,6 +204,67 @@ class _GeneratorPageState extends State<GeneratorPage> {
                       minimumSize: Size(200, 50), // Establecer el tamaño del botón
                     ),
                     child: Text("Play", style: TextStyle(fontSize: 20, color: mainColor),),
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if(universo>1)
+                        ElevatedButton(onPressed: (){
+                          setState(() {
+                            universo--;
+                            widget.onUniverseChanged(universo);
+                          });
+                        },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white.withOpacity(0.7), // Color de fondo con 50% de opacidad
+                            elevation: 0,
+                          ),
+                          child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+
+                          children: [
+                            Icon(
+                              Icons.arrow_left,
+                              color: mainColor,
+                              size: 20,
+                            ),
+                            SizedBox(width: 3),
+                            Text(
+                              "Universo anterior",
+                              style: TextStyle(fontSize: 10, color: mainColor),
+                            ),
+                          ],
+                        ),),
+                      SizedBox(width: 10),
+                      if(universo < ultimoUniversoDesbloqueado)
+                        ElevatedButton(onPressed: (){
+                          setState(() {
+                            universo++;
+                            widget.onUniverseChanged(universo);
+                          });
+                        },style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white.withOpacity(0.7), // Color de fondo con 50% de opacidad
+                          elevation: 0, // Elimina la sombra del botón
+                        ),
+                          child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Proximo universo",
+                              style: TextStyle(fontSize: 10, color: mainColor),
+                            ),
+                            SizedBox(width: 3),
+                            Icon(
+                              Icons.arrow_right,
+                              color: mainColor,
+                              size: 20,
+                            ),
+
+
+                          ],
+                        ),),
+                    ],
                   ),
                 ],
               ),

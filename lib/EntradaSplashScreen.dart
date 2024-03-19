@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:myapp/SplashScreenCargaNivel.dart';
 import 'package:myapp/main.dart';
 
 class EntradaSplashScreen extends StatefulWidget{
@@ -15,7 +14,7 @@ class _EntradaSplashScreenState extends State<EntradaSplashScreen> with SingleTi
   void initState(){
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(Duration(seconds: 1), () {
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const MyHomePage(title: "Hola", subtitle: "Verano")));
     });
   }

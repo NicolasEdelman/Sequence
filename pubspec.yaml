@@ -78,6 +78,12 @@ flutter:
     - assets/images/Perdiste.png
     - assets/images/Perdiste1.png
     - assets/images/Terminaste.png
+    - assets/images/FondoNegro.png
+    - assets/images/FondoRojo.png
+    - assets/images/FondoVerde.png
+    - assets/images/Completado1.png
+    - assets/images/Completado2.png
+    - assets/images/Completado3.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
