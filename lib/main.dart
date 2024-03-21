@@ -6,9 +6,10 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Tablero.dart';
 import 'PaginaInicio.dart';
+import 'myAppState.dart';
 
 void main() {
-  var appState = MyAppState();
+  var appState = MyState();
   runApp(
     MultiProvider(
       providers: [
@@ -26,28 +27,19 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
+    return ChangeNotifierProvider(
+      create: (context) => MyState(),
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
 
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+        ),
+        home: EntradaSplashScreen(),
+
       ),
-      home: EntradaSplashScreen(),
-
     );
-  }
-}
-
-class MyAppState extends ChangeNotifier{
-  Color? J1selectedColor;
-  int selectedSequence = 1;
-  String name = '';
-  double? nivel = 1;
-
-  void updatePlayerInfo(String playerName, double level){
-    name = playerName;
-    nivel = level;
   }
 }
 
@@ -63,16 +55,14 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  String _dynamicTitle = '';
   var selectedIndex = 0;
   bool isPlaying = false;
   Color? J1selectedColor = Colors.blue;
   int selectedSequence = 1;
-  String name = '';
+  //String name = '';
   double nivel = 1;
-  MyAppState? appState;
   int ultimoNivelDesbloqueado = 30;
-  int ultimoNivelDisponible = 30;
+  int ultimoNivelDisponible = 90;
   int universoActual = 1;
   int ultimoUniversoDisponible = 1;
 
@@ -80,7 +70,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState(){
     super.initState();
-    _dynamicTitle = widget.title;
     //initSharedPreferences();
   }
   Future<void> initSharedPreferences() async {
@@ -103,29 +92,12 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       ultimoNivelDesbloqueado = nuevoNivel;
     });
-
-
-  }
-
-  void handleNameChanged(String newName) {
-    setState(() {
-      name = newName;
-    });
-  }
-  void handleColorChanged(Color? color1){
-    setState(() {
-      J1selectedColor = color1;
-    });
-  }
-  void handleCantSequencesChanged(int cant){
-    setState(() {
-      selectedSequence = cant;
-    });
   }
   void handleLevelChanged(double nuevoNivel){
     setState(() {
       nivel = nuevoNivel;
     });
+    context.read<MyState>().cambiarNivelActual(nuevoNivel.toInt());
   }
   void handleUniverseChanged(int nuevoUniverso){
     setState(() {
@@ -141,10 +113,14 @@ class _MyHomePageState extends State<MyHomePage> {
       }
       //cargarDatos();
     });
+    print("Desbloqueaste el nivel: $ultimoNivelDesbloqueado");
   }
 
   void handleSiguienteNivel(int siguienteNiv){
     if(siguienteNiv > ultimoNivelDisponible){
+      terminasteElJuego();
+    }
+    else if(siguienteNiv == 31 || siguienteNiv == 61){
       terminasteElJuego();
     }
     else{
@@ -185,7 +161,6 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.of(context).pop(); // Cierra el cuadro de diálogo
                 setState(() {
-                  _dynamicTitle = widget.title;
                   isPlaying = false;
                   selectedIndex = 0;
                   selectedSequence = 1;
@@ -282,11 +257,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: () {
                       Navigator.of(context).pop();
                       setState(() {
-                        _dynamicTitle = widget.title;
                         isPlaying = false;
                         selectedIndex = 0;
                         selectedSequence = 1;
-                        if(universoActual<3)universoActual++;
+                        if(universoActual<3){
+                          universoActual++;
+                          nivel++;
+                          //if(universoActual == 2) nivel = nivel - 30;
+                          //else if(universoActual == 3)nivel = nivel - 60;
+                        }
                       });// Cierra el cuadro de diálogo
                     },
                     child: Text(texto),
@@ -302,90 +281,104 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    String titlebar = "";
-    Widget page;
-    switch (selectedIndex){
-      case 0:
-        titlebar = "";
-        setState(() {
-          isPlaying = false;
-        });
-        page = GeneratorPage(
-          onStartGame: startGame,
-          onNameChanged: handleNameChanged,
-          onColorChanged: handleColorChanged,
-          onCantSequencesChanged: handleCantSequencesChanged,
-          onLevelChanged: handleLevelChanged,
-          onUniverseChanged: handleUniverseChanged,
-          mainColor: J1selectedColor!,
-          ultimoNivelDesbloqueado: ultimoNivelDesbloqueado,
-          universo: universoActual,
-          ultimoUniversoDesbloqueado: ultimoUniversoDisponible,
-        );
-        break;
-      case 1:
-        titlebar = "${name} - Nivel ${nivel.toInt()}";
-        setState(() {
-          isPlaying = true;
-        });
-        page = TableroPage(
-          J1selectedColor: J1selectedColor,
-          J2selectedColor: Colors.white,
-          name: name,
-          level: nivel,
-          universo: universoActual,
-          onMatchFinished: handleMatchFinished,
-          siguienteNivel: handleSiguienteNivel,
-        );
-        break;
-      case 2:
-        titlebar = "${name} - Nivel ${nivel.toInt()}";
-        setState(() {
-          isPlaying = false;
-        });
-        page = SplashScreen(
-          nivel: nivel.toInt(),
-          cantidadSequencias: selectedSequence,
-          j1Color: J1selectedColor,
+    return ChangeNotifierProvider(
+      create: (_) => MyState(),
+      child: Consumer<MyState>(
+        builder: (context, myState, _) {
+          String titlebar = "";
+          Widget page;
+          switch (selectedIndex) {
+            case 0:
+              titlebar = "";
+              myState.isPlaying = false;
+              page = GeneratorPage(
+                onStartGame: startGame,
+                onLevelChanged: handleLevelChanged,
+                onUniverseChanged: handleUniverseChanged,
+                mainColor: myState.J1selectedColor!,
+                ultimoNivelDesbloqueado: myState.ultimoNivelDesbloqueado,
+                universo: myState.universoActual,
+                ultimoUniversoDesbloqueado: myState.ultimoUniversoDesbloqueado,
+              );
+              break;
+            case 1:
+              int nive = nivel.toInt();
+              int level = 0;
+              if (nive == 30)
+                level = 30;
+              else if (nive == 60)
+                level = 60;
+              else if (nive == 90)
+                level = 90;
+              else
+                level = nive % 30;
+              titlebar = "${myState.name} - Nivel ${level.toInt()}";
+              myState.isPlaying = true;
+              page = TableroPage(
+                J1selectedColor: myState.J1selectedColor!,
+                J2selectedColor: Colors.white,
+                name: myState.name,
+                level: level.toDouble(),
+                universo: myState.universoActual,
+                onMatchFinished: handleMatchFinished,
+                siguienteNivel: handleSiguienteNivel,
+              );
+              break;
+            case 2:
+              int cantSecuencias = 2;
+              if (myState.universoActual == 1 || myState.universoActual == 3)
+                cantSecuencias = 1;
+              titlebar = "${myState.name} - Nivel ${nivel.toInt()}";
+              myState.isPlaying = false;
+              page = SplashScreen(
+                nivel: nivel.toInt(),
+                cantidadSequencias: cantSecuencias,
+                j1Color: myState.J1selectedColor!,
+              );
+              break;
+            default:
+              throw UnimplementedError('No widget for $selectedIndex');
+          }
 
-        );
-      default:
-        throw UnimplementedError('No widget for $selectedIndex');
-    }
-
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(titlebar),
-        leading: isPlaying
-            ? IconButton(
-          icon: Icon(Icons.exit_to_app),
-          tooltip: 'Salir del juego',
-          onPressed: exitGame,
-        )
-            : IconButton(
-          icon: Icon(Icons.menu),
-          tooltip: 'Menú',
-          onPressed: null,
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.help_outline),
-            tooltip: 'Ayuda',
-            onPressed: panelReglas,
-          ),
-        ],
-        //backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        backgroundColor: J1selectedColor,
-        toolbarHeight: 50,
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(titlebar),
+              leading: myState.isPlaying
+                  ? IconButton(
+                icon: Icon(Icons.exit_to_app),
+                tooltip: 'Salir del juego',
+                onPressed: exitGame,
+              )
+                  : IconButton(
+                icon: Icon(Icons.menu),
+                tooltip: 'Menú',
+                onPressed: null,
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.help_outline),
+                  tooltip: 'Ayuda',
+                  onPressed: panelReglas,
+                ),
+              ],
+              backgroundColor: myState.J1selectedColor ?? Colors.blue,
+              toolbarHeight: 50,
+            ),
+            body: Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    child: page,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
-      body: Column(
-        children: [
-          Expanded(child: Container(child: page,)),
-        ]
-        ),
     );
   }
+
 }
 
 

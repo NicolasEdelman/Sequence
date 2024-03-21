@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:myapp/myAppState.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GeneratorPage extends StatefulWidget {
   final VoidCallback onStartGame;
-  final Function(String) onNameChanged;
-  final Function(Color?) onColorChanged;
-  final Function(int) onCantSequencesChanged;
   final Function(double) onLevelChanged;
   final Function(int) onUniverseChanged;
   final Color mainColor;
@@ -14,7 +13,7 @@ class GeneratorPage extends StatefulWidget {
   final int universo;
   final int ultimoUniversoDesbloqueado;
 
-  const GeneratorPage({Key? key, required this.onStartGame, required this.onNameChanged, required this.onColorChanged, required this.onCantSequencesChanged, required this.onLevelChanged, required this.onUniverseChanged, required this.mainColor, required this.ultimoNivelDesbloqueado, required this.universo, required this.ultimoUniversoDesbloqueado}) : super(key: key);
+  const GeneratorPage({Key? key, required this.onStartGame, required this.onLevelChanged, required this.onUniverseChanged, required this.mainColor, required this.ultimoNivelDesbloqueado, required this.universo, required this.ultimoUniversoDesbloqueado}) : super(key: key);
 
   @override
   State<GeneratorPage> createState() => _GeneratorPageState(
@@ -68,6 +67,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
 
   @override
   Widget build(BuildContext context) {
+    mainColor = context.read<MyState>().J1selectedColor ?? Colors.blue;
     String fondoPath = "";
     switch (universo){
       case 1:
@@ -127,7 +127,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
                       labelStyle: TextStyle(color: Colors.white),
                     ),
                     onChanged: (value) {
-                      widget.onNameChanged(value);
+                      context.read<MyState>().cambiarNombre(value);
                       setState(() {
                         nombreVacio = value.isEmpty;
                       });
@@ -135,11 +135,12 @@ class _GeneratorPageState extends State<GeneratorPage> {
                   ),
                   SizedBox(height: 20),
                   ColorSelector(
+                    actualColor: context.read<MyState>().J1selectedColor ?? Colors.blue,
                     onColorsSelected: (Color? color1) {
                       setState(() {
                         mainColor = color1;
                       });
-                      widget.onColorChanged(color1);
+                      context.read<MyState>().cambiarColor(mainColor!);
                     },
                   ),
                   SizedBox(height: 20),
@@ -165,7 +166,6 @@ class _GeneratorPageState extends State<GeneratorPage> {
                   ElevatedButton(
                     onPressed: () {
                       String name = _nameController.text.trim();
-                      //name = "Nico";
                       if(name.isEmpty){
                         setState(() {
                           nombreVacio = true;
@@ -291,13 +291,18 @@ class _GeneratorPageState extends State<GeneratorPage> {
 
 class ColorSelector extends StatefulWidget {
   final Function(Color?) onColorsSelected;
-  ColorSelector({required this.onColorsSelected});
+  final Color? actualColor;
+  ColorSelector({required this.onColorsSelected, required this.actualColor});
 
   @override
-  _ColorSelectorState createState() => _ColorSelectorState();
+  _ColorSelectorState createState() => _ColorSelectorState( J1SelectedColor: actualColor);
 }
 
 class _ColorSelectorState extends State<ColorSelector> {
+
+  _ColorSelectorState({required this.J1SelectedColor});
+
+  Color? J1SelectedColor;
   List<Color> colors = [
     Colors.blue,
     Colors.green,
@@ -307,7 +312,6 @@ class _ColorSelectorState extends State<ColorSelector> {
     Colors.teal,
   ];
 
-  Color? J1selectedColor = Colors.blue;
 
   @override
   Widget build(BuildContext context) {
@@ -322,8 +326,9 @@ class _ColorSelectorState extends State<ColorSelector> {
                     GestureDetector(
                       onTap: () {
                         setState(() {
-                          J1selectedColor = color;
-                          widget.onColorsSelected(J1selectedColor);
+                          J1SelectedColor = color;
+                          //context.read<MyState>().cambiarColor(color);
+                          widget.onColorsSelected(J1SelectedColor);
                         });
                       },
                       child: Container(
@@ -333,7 +338,7 @@ class _ColorSelectorState extends State<ColorSelector> {
                         decoration: BoxDecoration(
                           color: color,
                           border: Border.all(
-                            color: J1selectedColor == color ? Colors.black : Colors.transparent,
+                            color: J1SelectedColor == color ? Colors.black : Colors.transparent,
                             width: 2.0,
                           ),
                         ),
