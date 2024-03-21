@@ -50,6 +50,7 @@ class _TableroPageState extends State<TableroPage> {
 
   Color? J1selectedColor;
   Color? J2selectedColor;
+  Color? J3selectedColor;
   String name;
   double level = 1;
 
@@ -57,7 +58,8 @@ class _TableroPageState extends State<TableroPage> {
   late List<List<Triplet>> matriz =  List.generate(10, (_) => List<Triplet>.generate(10, (_) => Triplet(0, "0", ""),),);
   var mazo =  Mazo();
   List<Carta> cartasEnManoMia = [Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),];
-  List<Carta> cartasEnManoOponente = [Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),];
+  List<Carta> cartasEnManoOponente1 = [Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),];
+  List<Carta> cartasEnManoOponente2 = [Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),Carta("0",""),];
   Carta cartaPresionada = Carta("0", '');
   int poscartaPresionada =0;
   List<int> puntajes = [0, 0];
@@ -78,9 +80,7 @@ class _TableroPageState extends State<TableroPage> {
   int cantWilds = 0;
   List<List<CartaConPos>> sequences1 = [];
   List<List<CartaConPos>> sequences2 = [];
-
-
-
+  List<List<CartaConPos>> sequences3 = [];
 
   _TableroPageState({
     required this.J1selectedColor,
@@ -129,13 +129,13 @@ class _TableroPageState extends State<TableroPage> {
                     scrollDirection: Axis.horizontal,
                     itemCount: 7,
                     itemBuilder: (context, index) {
-                      Carta carta = cartasEnManoOponente[index];
+                      Carta carta = cartasEnManoOponente1[index];
                       return cartaMano(carta: Carta("", ""), index: index, miTurno: miTurno);
                       //return cartaMano(carta: carta, index: index, miTurno: miTurno);
                     },
                   ),
                 ),
-                Text("Se juega a $universo sequences", style: TextStyle(color: colorLetras),),
+                Text("Se juega a $cantSequences sequences", style: TextStyle(color: colorLetras),),
                 Padding(padding: EdgeInsets.only(top: 5),),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -160,7 +160,7 @@ class _TableroPageState extends State<TableroPage> {
                       Triplet triplet = matriz[fila][columna];
 
                       // Construir el widget de la celda
-                      return CartaTablero(columna: columna, fila: fila, triplet: triplet, J1Color: J1selectedColor, J2Color: J2selectedColor, onTap: (Carta carta){
+                      return CartaTablero(columna: columna, fila: fila, triplet: triplet, J1Color: J1selectedColor, J2Color: J2selectedColor, J3Color: J3selectedColor, onTap: (Carta carta){
                         setState(() {
                           cartaSeleccionadaTablero = carta;
                           filaCartaSeleccionadaTablero = fila;
@@ -295,13 +295,16 @@ class _TableroPageState extends State<TableroPage> {
       empezoJuego = true;
       ganeJuego = false;
       perdiJuego = false;
-      cartasEnManoOponente = [];
+      cartasEnManoOponente1 = [];
+      cartasEnManoOponente2 = [];
       ultimaCartaTirada = Carta("", "");
       level = oponente.tiempoTurnoUsuario.toDouble();
-      J2selectedColor = oponente.colorOponente;
+      J2selectedColor = oponente.colorOponente1;
+      J3selectedColor = oponente.colorOponente2;
       cantWilds = 0;
       sequences1 = [];
       sequences2 = [];
+      sequences3 = [];
     });
     repartirCartas();
     while(!ganeJuego && !perdiJuego){
@@ -319,7 +322,7 @@ class _TableroPageState extends State<TableroPage> {
         });
       }
       else{
-        await turnoJugador2(oponente);
+        await turnoOponente(oponente, 2);
         if(revisarGanador(2, cantSequences)){
           final completer = Completer<void>();
           MostrarGanador(sequences2, 2, completer);
@@ -331,6 +334,20 @@ class _TableroPageState extends State<TableroPage> {
             Resultado resultado = Resultado(nivelOponente, 2, cantSequences, 0);
             widget.onMatchFinished(resultado);
           });
+        }
+        if(universo == 3){
+          await turnoOponente(oponente, 4);
+          if(revisarGanador(4, cantSequences)){
+            final completer = Completer<void>();
+            MostrarGanador(sequences3, 4, completer);
+            await completer.future;
+            setState(() {
+              perdiJuego = true;
+              estado = "PERDISTEEE";
+              Resultado resultado = Resultado(nivelOponente, 4, cantSequences, 0);
+              widget.onMatchFinished(resultado);
+            });
+          }
         }
       }
     }
@@ -445,24 +462,31 @@ class _TableroPageState extends State<TableroPage> {
     });
   }
 
-  Future<void> turnoJugador2(Oponente oponente) async{
+  Future<void> turnoOponente(Oponente oponente, int ficha) async{
     await Future.delayed(Duration(milliseconds: 2000));
+    List<Carta> cartasEnManoOponente = [];
+    if(ficha == 2){
+      cartasEnManoOponente = cartasEnManoOponente1;
+    }
+    else{
+      cartasEnManoOponente = cartasEnManoOponente2;
+    }
     oponente.ActualizarMatriz(matriz);
     for (Carta carta in cartasEnManoOponente){
       if(tengoDeadCard(carta) && carta.numero != "Wild" && carta.numero != "Remove"){
         cartasEnManoOponente.remove(carta);
-        entregarCarta(2);
+        entregarCarta(ficha);
       }
     }
     oponente.ActualizarCartas(cartasEnManoOponente);
     //print("Tengo ${oponente.cartasEnMano.length} cartas en mano");
-    var retorno = oponente.tirarCarta();
+    var retorno = oponente.tirarCarta(ficha);
     setState(() {
       matriz = retorno.tablero;
       ultimaCartaTirada = retorno.carta;
       estado = "";
     });
-    entregarCarta(2);
+    entregarCarta(ficha);
   }
 
   Future<void> turnoJugador1Maquina(Oponente oponente) async{
@@ -475,7 +499,7 @@ class _TableroPageState extends State<TableroPage> {
     }
     oponente.ActualizarCartas(cartasEnManoMia);
     //print("Tengo ${oponente.cartasEnMano.length} cartas en mano");
-    var retorno = oponente.tirarCarta();
+    var retorno = oponente.tirarCarta(2);
     setState(() {
       matriz = retorno.tablero;
       ultimaCartaTirada = retorno.carta;
@@ -514,7 +538,10 @@ class _TableroPageState extends State<TableroPage> {
 
       }
       else if(jugador == 2){
-        cartasEnManoOponente.add(mazo.darPrimerCarta());
+        cartasEnManoOponente1.add(mazo.darPrimerCarta());
+      }
+      else if(jugador == 4){
+        cartasEnManoOponente2.add(mazo.darPrimerCarta());
       }
     });
   }
@@ -532,9 +559,16 @@ class _TableroPageState extends State<TableroPage> {
     entregarCarta(2);
     entregarCarta(2);
     entregarCarta(2);
+    if(universo == 3){
+      entregarCarta(4);
+      entregarCarta(4);
+      entregarCarta(4);
+      entregarCarta(4);
+    }
     for (int i=0; i<=2; i++){
       entregarCarta(1);
       entregarCarta(2);
+      if(universo == 3) entregarCarta(4);
     }
     print("Se teriminaron de repartir las cartas");
   }

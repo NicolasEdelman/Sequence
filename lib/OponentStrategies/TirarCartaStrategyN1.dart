@@ -4,7 +4,7 @@ import 'package:myapp/cartaTablero.dart';
 
 class TirarCartaStrategyN1 implements TirarCartaStrategy{
   @override
-  TableroyCarta TirarCarta(List<List<Triplet>> mat, List<Carta> baraja){
+  TableroyCarta TirarCarta(List<List<Triplet>> mat, List<Carta> baraja, int ficha){
     String numeroCarta = baraja[0].numero;
     String paloCarta = baraja[0].palo;
     bool deadCard = true;
@@ -17,7 +17,7 @@ class TirarCartaStrategyN1 implements TirarCartaStrategy{
               baraja.removeAt(0);
               deadCard = false;
               puseCarta = true;
-              mat[i][j] = Triplet(2, numeroCarta.toString(), paloCarta);
+              mat[i][j] = Triplet(ficha, numeroCarta.toString(), paloCarta);
             }
           }
         }

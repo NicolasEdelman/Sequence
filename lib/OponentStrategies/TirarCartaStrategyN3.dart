@@ -15,15 +15,19 @@ class TirarCartaStrategyN3 implements TirarCartaStrategy{
     [0, 2, 2, 2, 2], [-2, 2, 2, 2, 0], [-2, 2, 2, 0, 2], [-2, 2, 0, 2, 2], [-2, 0, 2, 2, 2],
     [2, 2, 2, 0, -2], [2, 2, 0, 2, -2], [2, 0, 2, 2, -2], [0, 2, 2, 2, -2],
   ];
+  List<List<int>> opciones4 = [[4, 4, 4, 4, 0], [4, 4, 4, 0, 4], [4, 4, 0, 4, 4], [4, 0, 4, 4, 4],
+    [0, 4, 4, 4, 4], [-2, 4, 4, 4, 0], [-2, 4, 4, 0, 4], [-2, 4, 0, 4, 4], [-2, 0, 4, 4, 4],
+    [4, 4, 4, 0, -2], [4, 4, 0, 4, -2], [4, 0, 4, 4, -2], [0, 4, 4, 4, -2],
+  ];
 
   @override
-  TableroyCarta TirarCarta(List<List<Triplet>> mat, List<Carta> baraja){
+  TableroyCarta TirarCarta(List<List<Triplet>> mat, List<Carta> baraja, int ficha){
     cartas = baraja;
     matriz = mat;
     for (Carta carta in cartas){
-      if(siCompletaOMata(carta)) return TableroyCarta(carta, matriz);
+      if(siCompletaOMata(carta, ficha)) return TableroyCarta(carta, matriz);
     }
-    return TirarPrimerCarta(cartas[0]);
+    return TirarPrimerCarta(cartas[0], ficha);
   }
 
   void PonerPrimeraAlFinal(){
@@ -34,7 +38,7 @@ class TirarCartaStrategyN3 implements TirarCartaStrategy{
     cartas[6] = primera;
   }
 
-  TableroyCarta TirarPrimerCarta(Carta cartaATirar){
+  TableroyCarta TirarPrimerCarta(Carta cartaATirar, int ficha){
     bool deadCard = true;
     bool puseCarta = false;
     for (int i=0; i<10; i++){
@@ -45,7 +49,7 @@ class TirarCartaStrategyN3 implements TirarCartaStrategy{
               cartas.removeAt(0);
               deadCard = false;
               puseCarta = true;
-              matriz[i][j] = Triplet(2, cartaATirar.numero.toString(), cartaATirar.palo);
+              matriz[i][j] = Triplet(ficha, cartaATirar.numero.toString(), cartaATirar.palo);
             }
           }
         }
@@ -58,14 +62,14 @@ class TirarCartaStrategyN3 implements TirarCartaStrategy{
     return TableroyCarta(cartaATirar, matriz);
   }
 
-  bool siCompletaOMata(Carta carta){
+  bool siCompletaOMata(Carta carta, int ficha){
       if(carta.numero != "Wild" && carta.numero != "Remove"){
-        if(VerSiTiroCarta(2, carta)){
+        if(VerSiTiroCarta(ficha, carta, ficha)){
           print("Tire el ${carta.numero} de ${carta.palo} ofensivo");
           cartas.remove(carta);
           return true;
         }
-        else if(VerSiTiroCarta(1, carta)){
+        else if(VerSiTiroCarta(1, carta, ficha)){
           print("Tire el ${carta.numero} de ${carta.palo} defensivo");
           cartas.remove(carta);
           return true;
@@ -88,11 +92,12 @@ class TirarCartaStrategyN3 implements TirarCartaStrategy{
   }
 
 
-  bool VerSiTiroCarta(int numero, Carta carta) {
+  bool VerSiTiroCarta(int numero, Carta carta, int ficha) {
     bool puseCarta = false;
     List<List<int>> opciones;
     if(numero == 1)opciones = opciones1;
-    else opciones = opciones2;
+    else if (numero == 2) opciones = opciones2;
+    else opciones = opciones4;
 
     // Función auxiliar para verificar si una fila cumple con algún patrón
     bool buscarPatronesEnFila(List<Triplet> fila) {
@@ -102,7 +107,7 @@ class TirarCartaStrategyN3 implements TirarCartaStrategy{
           if (listasIguales(opcion, fila.sublist(i, i + 5).map((triplet) => triplet.fichaPuesta).toList())) {
             for (int j = i; j < i + 5; j++) {
               if(fila[j].fichaPuesta == 0 && fila[j].numeroCarta == carta.numero && fila[j].palo == carta.palo){
-                fila[j].fichaPuesta = 2;
+                fila[j].fichaPuesta = ficha;
                 puseCarta = true;
               }
             }

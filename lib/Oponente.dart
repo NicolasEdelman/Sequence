@@ -16,7 +16,8 @@ class Oponente{
   List<List<Triplet>> matriz =  List.generate(10, (_) => List<Triplet>.generate(10, (_) => Triplet(0, "0", ""),),);
   Carta ultimaCartaTirada = Carta("", "");
   Color? colorUsuario;
-  Color? colorOponente;
+  Color? colorOponente1;
+  Color? colorOponente2;
   TirarCartaStrategy? strategy;
 
 
@@ -66,8 +67,8 @@ class Oponente{
   void setStrategy(TirarCartaStrategy strate){
     this.strategy = strate;
   }
-  TableroyCarta tirarCarta(){
-    return strategy!.TirarCarta(matriz, cartasEnMano);
+  TableroyCarta tirarCarta(int ficha){
+    return strategy!.TirarCarta(matriz, cartasEnMano, ficha);
   }
   bool? ActualizarCartas(List<Carta> nuevaBaraja){
     this.cartasEnMano = nuevaBaraja;
@@ -89,13 +90,26 @@ class Oponente{
       nuevaLista.add(Color.lerp(color, Colors.black, 0.65)!);
     }
     listaColores = nuevaLista;
-    colorOponente = listaColores[this.Nivel];
+    colorOponente1 = listaColores[this.Nivel];
+    //darColorOpuesto(colorOponente1);
+    colorOponente2 = Colors.brown;
+  }
+  void darColorOpuesto(Color? colorOponente1){
+    if(colorOponente1 != null){
+      Color colorOponente1Opuesto = Color.fromRGBO(
+        255 - colorOponente1.red,
+        255 - colorOponente1.green,
+        255 - colorOponente1.blue,
+        colorOponente1.opacity,
+      );
+      colorOponente2 = colorOponente1Opuesto.withOpacity(1.0);
+    }
   }
 
 }
 
 abstract class TirarCartaStrategy{
-  TableroyCarta TirarCarta(List<List<Triplet>> mat, List<Carta> baraja);
+  TableroyCarta TirarCarta(List<List<Triplet>> mat, List<Carta> baraja, int ficha);
 }
 
 

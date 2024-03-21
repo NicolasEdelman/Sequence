@@ -15,6 +15,12 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int level = 0;
+    if(nivel == 30) level = 30;
+    else if(nivel == 60) level = 60;
+    else if(nivel == 90) level = 90;
+    else level = nivel%30;
+
     return FadeInAnimation(
       duration: Duration(milliseconds: 500),
       child: Scaffold(
@@ -38,7 +44,7 @@ class SplashScreen extends StatelessWidget {
                   SizedBox(height: 20,),
                   if(cantidadSequencias == 1)
                     Text(
-                      "Nivel $nivel - 1 sequence",
+                      "Nivel $level - 1 sequence",
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 20,
@@ -46,7 +52,7 @@ class SplashScreen extends StatelessWidget {
                     ),
                   if(cantidadSequencias == 2)
                     Text(
-                      "Nivel $nivel - 2 sequences",
+                      "Nivel $level - 2 sequences",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,

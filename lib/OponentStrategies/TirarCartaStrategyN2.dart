@@ -15,15 +15,20 @@ class TirarCartaStrategyN2 implements TirarCartaStrategy{
     [0, 2, 2, 2, 2], [-2, 2, 2, 2, 0], [-2, 2, 2, 0, 2], [-2, 2, 0, 2, 2], [-2, 0, 2, 2, 2],
     [2, 2, 2, 0, -2], [2, 2, 0, 2, -2], [2, 0, 2, 2, -2], [0, 2, 2, 2, -2],
   ];
+  List<List<int>> opciones4 = [[4, 4, 4, 4, 0], [4, 4, 4, 0, 4], [4, 4, 0, 4, 4], [4, 0, 4, 4, 4],
+    [0, 4, 4, 4, 4], [-2, 4, 4, 4, 0], [-2, 4, 4, 0, 4], [-2, 4, 0, 4, 4], [-2, 0, 4, 4, 4],
+    [4, 4, 4, 0, -2], [4, 4, 0, 4, -2], [4, 0, 4, 4, -2], [0, 4, 4, 4, -2],
+  ];
+
 
   @override
-  TableroyCarta TirarCarta(List<List<Triplet>> mat, List<Carta> baraja){
+  TableroyCarta TirarCarta(List<List<Triplet>> mat, List<Carta> baraja, int ficha){
     cartas = baraja;
     matriz = mat;
     Carta cartaATirar = cartas[0];
-    if(TirarJackBien(cartaATirar)) return TableroyCarta(cartaATirar, matriz);
+    if(TirarJackBien(cartaATirar, ficha)) return TableroyCarta(cartaATirar, matriz);
     cartaATirar = cartas[0];
-    return TirarPrimerCarta(cartaATirar);
+    return TirarPrimerCarta(cartaATirar, ficha);
   }
 
   // Función auxiliar para verificar si dos listas son iguales
@@ -43,7 +48,7 @@ class TirarCartaStrategyN2 implements TirarCartaStrategy{
     cartas[6] = primera;
   }
 
-  bool TirarJackBien(Carta cartaATirar){
+  bool TirarJackBien(Carta cartaATirar, int ficha){
     if(cartaATirar.numero == "Remove"){
       if(TirarRemove()){
         print("Te sacaron una carta!");
@@ -54,12 +59,12 @@ class TirarCartaStrategyN2 implements TirarCartaStrategy{
     }
     cartaATirar = cartas[0];
     if(cartaATirar.numero == "Wild"){
-      if(TirarWild(2)){
+      if(TirarWild(ficha, ficha)){
         print("Pusieron un Wild Ofensivo!");
         cartas.removeAt(0);
         return true;
       }
-      else if(TirarWild(1)){
+      else if(TirarWild(1, ficha)){
         print("Pusieron un Wild Defensivo");
         cartas.removeAt(0);
         return true;
@@ -69,7 +74,7 @@ class TirarCartaStrategyN2 implements TirarCartaStrategy{
     return false;
   }
 
-  TableroyCarta TirarPrimerCarta(Carta cartaATirar){
+  TableroyCarta TirarPrimerCarta(Carta cartaATirar, int ficha){
     bool deadCard = true;
     bool puseCarta = false;
     for (int i=0; i<10; i++){
@@ -80,7 +85,7 @@ class TirarCartaStrategyN2 implements TirarCartaStrategy{
               cartas.removeAt(0);
               deadCard = false;
               puseCarta = true;
-              matriz[i][j] = Triplet(2, cartaATirar.numero.toString(), cartaATirar.palo);
+              matriz[i][j] = Triplet(ficha, cartaATirar.numero.toString(), cartaATirar.palo);
             }
           }
         }
@@ -162,10 +167,13 @@ class TirarCartaStrategyN2 implements TirarCartaStrategy{
     return false;
   }
 
-  bool TirarWild(int numero) {
+  bool TirarWild(int numero, int ficha) {
     List<List<int>> opciones;
     if(numero == 1)opciones = opciones1;
-    else opciones = opciones2;
+    else{
+      if(ficha == 2) opciones = opciones2;
+      else opciones = opciones4;
+    }
 
     print("Voy a tirar el Jack Wild defensivo");
 
@@ -178,7 +186,7 @@ class TirarCartaStrategyN2 implements TirarCartaStrategy{
             for (int j = i; j < i + 5; j++) {
               print("${fila[j].numeroCarta} de ${fila[j].palo}");
               if(fila[j].fichaPuesta == 0){
-                fila[j].fichaPuesta = 2;
+                fila[j].fichaPuesta = ficha;
               }
             }
             return true;

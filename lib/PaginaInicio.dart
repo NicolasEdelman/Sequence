@@ -44,6 +44,10 @@ class _GeneratorPageState extends State<GeneratorPage> {
     required this.ultimoUniversoDesbloqueado
   }){
     //initSharedPreferences();
+    print("El ultimo nivel desbloqueado que me pasaron es: $ultimoNivelDesbloqueado");
+    if(universo == 2)ultimoNivelDesbloqueado = ultimoNivelDesbloqueado - 30;
+    else if(universo == 3) ultimoNivelDesbloqueado = ultimoNivelDesbloqueado -60;
+    //_currentSliderValue = ultimoNivelDesbloqueado.toDouble();
   }
   Future<void> initSharedPreferences() async {
     await leerDatos();
@@ -113,6 +117,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
                   SizedBox(height: 20),
                   TextField(
                     controller: _nameController,
+                    style: TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       hintText: 'Ingrese su nombre',
                       labelText: 'Nombre',
@@ -156,33 +161,6 @@ class _GeneratorPageState extends State<GeneratorPage> {
                       }
                     },
                   ),
-                  /*Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Radio(
-                        value: 1,
-                        groupValue: selectedSequence,
-                        activeColor: Colors.white,
-                        onChanged: (int? value) {
-                          selectedSequence = value!;
-                          widget.onCantSequencesChanged(1);
-                        },
-                      ),
-                      Text('1 Secuencia', style: TextStyle(color: Colors.white),),
-                      Radio(
-                        value: 2,
-                        groupValue: selectedSequence,
-                        activeColor: Colors.white,
-                        onChanged: (int? value) {
-                          setState(() {
-                            selectedSequence = value!;
-                            widget.onCantSequencesChanged(2);
-                          });
-                        },
-                      ),
-                      Text('2 Secuencias', style: TextStyle(color: Colors.white),),
-                    ],
-                  ),*/
                   SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
@@ -217,7 +195,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
                           });
                         },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white.withOpacity(0.7), // Color de fondo con 50% de opacidad
+                            backgroundColor: Colors.white.withOpacity(0.7),
                             elevation: 0,
                           ),
                           child: Row(
@@ -244,8 +222,8 @@ class _GeneratorPageState extends State<GeneratorPage> {
                             widget.onUniverseChanged(universo);
                           });
                         },style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.7), // Color de fondo con 50% de opacidad
-                          elevation: 0, // Elimina la sombra del botón
+                          backgroundColor: Colors.white.withOpacity(0.7),
+                          elevation: 0,
                         ),
                           child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -260,8 +238,6 @@ class _GeneratorPageState extends State<GeneratorPage> {
                               color: mainColor,
                               size: 20,
                             ),
-
-
                           ],
                         ),),
                     ],
@@ -298,7 +274,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
                 children: [
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).pop(); // Cierra el cuadro de diálogo
+                      Navigator.of(context).pop();
                     },
                     child: Text('Entendido'),
                   ),
@@ -311,7 +287,6 @@ class _GeneratorPageState extends State<GeneratorPage> {
     );
   }
 }
-
 
 
 class ColorSelector extends StatefulWidget {
