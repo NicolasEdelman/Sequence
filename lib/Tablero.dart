@@ -545,13 +545,8 @@ class _TableroPageState extends State<TableroPage> {
       mazo.mezclarMazo();
       cartasEnManoMia = [];
     });
-    cartasEnManoMia.add(Carta("Wild", "Corazon"));
-    cartasEnManoMia.add(Carta("Wild", "Corazon"));
-    cartasEnManoMia.add(Carta("Wild", "Corazon"));
-    entregarCarta(2);
-    entregarCarta(2);
-    entregarCarta(2);
-    for (int i=0; i<=3; i++){
+
+    for (int i=0; i<=6; i++){
       entregarCarta(1);
       entregarCarta(2);
       if(universo == 3) entregarCarta(4);
@@ -819,9 +814,9 @@ class _TableroPageState extends State<TableroPage> {
     ];
     matriz[9] = [
       Triplet(-2, "0", "Joker"),
-      Triplet(1, "A", "Diamante"),
-      Triplet(1, "K", "Diamante"),
-      Triplet(1, "Q", "Diamante"),
+      Triplet(0, "A", "Diamante"),
+      Triplet(0, "K", "Diamante"),
+      Triplet(0, "Q", "Diamante"),
       for (int i = 10; i >= 6; i--) Triplet(0,i.toString(), "Diamante"),
       Triplet(-2,"0", "Joker"),
     ];
