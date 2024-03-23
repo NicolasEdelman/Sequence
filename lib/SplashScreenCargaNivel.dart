@@ -5,21 +5,18 @@ class SplashScreen extends StatelessWidget {
   final int nivel;
   final int cantidadSequencias;
   final Color? j1Color;
+  final int universo;
 
   const SplashScreen({
     required this.nivel,
     required this.cantidadSequencias,
     required this.j1Color,
+    required this.universo,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    int level = 0;
-    if(nivel == 30) level = 30;
-    else if(nivel == 60) level = 60;
-    else if(nivel == 90) level = 90;
-    else level = nivel%30;
 
     return FadeInAnimation(
       duration: Duration(milliseconds: 500),
@@ -44,7 +41,7 @@ class SplashScreen extends StatelessWidget {
                   SizedBox(height: 20,),
                   if(cantidadSequencias == 1)
                     Text(
-                      "Nivel $level - 1 sequence",
+                      "Nivel $nivel - 1 sequence",
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 20,
@@ -52,12 +49,18 @@ class SplashScreen extends StatelessWidget {
                     ),
                   if(cantidadSequencias == 2)
                     Text(
-                      "Nivel $level - 2 sequences",
+                      "Nivel $nivel - 2 sequences",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                       ),
                     ),
+                  SizedBox(height: 20,),
+                  Text("UNIVERSO $universo", style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                  ),),
+                  SizedBox(height: 40,),
                 ],
               ))
             ],

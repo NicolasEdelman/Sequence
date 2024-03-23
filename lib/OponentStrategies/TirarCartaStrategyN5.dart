@@ -63,24 +63,21 @@ class TirarCartaStrategyN5 implements TirarCartaStrategy {
     if(cartaATirar.numero == "Remove"){
       if(TirarRemove()){
         print("Te sacaron una carta!");
-        cartas.removeAt(0);
+        cartas.remove(cartaATirar);
         return true;
       }
-      PonerPrimeraAlFinal();
     }
-    cartaATirar = cartas[0];
     if(cartaATirar.numero == "Wild"){
       if(TirarWild(ficha, ficha)){
         print("Pusieron un Wild Ofensivo!");
-        cartas.removeAt(0);
+        cartas.remove(cartaATirar);
         return true;
       }
       else if(TirarWild(1, ficha)){
         print("Pusieron un Wild Defensivo");
-        cartas.removeAt(0);
+        cartas.remove(cartaATirar);
         return true;
       }
-      PonerPrimeraAlFinal();
     }
     return false;
   }

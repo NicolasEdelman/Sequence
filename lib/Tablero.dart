@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'Mazo.dart';
 import 'cartaTablero.dart';
@@ -317,7 +316,7 @@ class _TableroPageState extends State<TableroPage> {
         setState(() {
           ganeJuego = true;
           estado = "GANASTEEEE";
-          Resultado resultado = Resultado(nivelOponente, 1, cantSequences, 0);
+          Resultado resultado = Resultado(nivelOponente, 1, cantSequences, 0, universo);
           widget.onMatchFinished(resultado);
         });
       }
@@ -331,7 +330,7 @@ class _TableroPageState extends State<TableroPage> {
             //empezoJuego = false;
             perdiJuego = true;
             estado = "PERDISTEEE";
-            Resultado resultado = Resultado(nivelOponente, 2, cantSequences, 0);
+            Resultado resultado = Resultado(nivelOponente, 2, cantSequences, 0, universo);
             widget.onMatchFinished(resultado);
           });
         }
@@ -344,7 +343,7 @@ class _TableroPageState extends State<TableroPage> {
             setState(() {
               perdiJuego = true;
               estado = "PERDISTEEE";
-              Resultado resultado = Resultado(nivelOponente, 4, cantSequences, 0);
+              Resultado resultado = Resultado(nivelOponente, 4, cantSequences, 0, universo);
               widget.onMatchFinished(resultado);
             });
           }
@@ -377,7 +376,6 @@ class _TableroPageState extends State<TableroPage> {
       miTurno = true;
     });
 
-    //print("Es mi turno y estoy esperando que aprete una carta...");
 
     while (cartaPresionada.numero == "0") {
       await Future.delayed(Duration(milliseconds: 100));
@@ -457,7 +455,7 @@ class _TableroPageState extends State<TableroPage> {
         cartasEnManoMia[i] = cartasEnManoMia[i+1];
       }
       cartasEnManoMia[6] = mazo.darPrimerCarta();
-      estado = "$name tiró el ${cartaPresionada.numero} de ${cartaPresionada.palo}";
+      estado = "Tiraste el ${cartaPresionada.numero} de ${cartaPresionada.palo}";
       ultimaCartaTirada = cartaPresionada;
     });
   }
@@ -525,7 +523,8 @@ class _TableroPageState extends State<TableroPage> {
       if(jugador == 1){
         Carta cartaADar = mazo.darPrimerCarta();
         if(cartaADar.numero == "Wild"){
-          if(cantWilds >= 1 || nivelOponente > 24) cartasEnManoMia.add(mazo.darPrimerCarta());
+          if(cantWilds >= 1 ) cartasEnManoMia.add(mazo.darPrimerCarta());
+          else if(nivelOponente > 25) cartasEnManoMia.add(mazo.darPrimerCarta());
           else{
             cartasEnManoMia.add(cartaADar);
             cantWilds ++;
@@ -535,7 +534,6 @@ class _TableroPageState extends State<TableroPage> {
           cartasEnManoMia.add(mazo.darPrimerCarta());
         }
         else cartasEnManoMia.add(cartaADar);
-
       }
       else if(jugador == 2){
         cartasEnManoOponente1.add(mazo.darPrimerCarta());
@@ -551,21 +549,8 @@ class _TableroPageState extends State<TableroPage> {
       mazo.mezclarMazo();
       cartasEnManoMia = [];
     });
-    cartasEnManoMia.add(Carta("Wild", "Corazon"));
-    cartasEnManoMia.add(Carta("Wild", "Corazon"));
-    cartasEnManoMia.add(Carta("Wild", "Corazon"));
-    cartasEnManoMia.add(Carta("Wild", "Corazon"));
-    entregarCarta(2);
-    entregarCarta(2);
-    entregarCarta(2);
-    entregarCarta(2);
-    if(universo == 3){
-      entregarCarta(4);
-      entregarCarta(4);
-      entregarCarta(4);
-      entregarCarta(4);
-    }
-    for (int i=0; i<=2; i++){
+    //cartasEnManoMia.add(Carta("Wild", "Corazon"));
+    for (int i=0; i<=6; i++){
       entregarCarta(1);
       entregarCarta(2);
       if(universo == 3) entregarCarta(4);
@@ -577,17 +562,13 @@ class _TableroPageState extends State<TableroPage> {
   bool sonIguales(List<CartaConPos> lista1, List<CartaConPos> lista2){
     for(int i=0; i<lista1.length; i++){
       if(lista1[i].carta.numero != lista2[i].carta.numero || lista1[i].carta.palo != lista2[i].carta.palo || lista1[i].columna != lista2[i].columna || lista1[i].fila != lista2[i].fila){
-        print("No son iguales");
         return false;
       }
     }
-    print("Son iguales");
     return true;
   }
   bool tienenMasDeUnoEnComun(List<CartaConPos> lista1, List<CartaConPos> lista2){
     int cantEnComun = 0;
-    imprimirSequence(lista1);
-    imprimirSequence(lista2);
     for(int i=0; i<lista1.length; i++){
       for(int j=0; j<lista2.length; j++){
         if(lista1[i].carta.numero == lista2[j].carta.numero && lista1[i].carta.palo == lista2[j].carta.palo && lista1[i].columna == lista2[j].columna && lista1[i].fila == lista2[j].fila){
@@ -596,11 +577,9 @@ class _TableroPageState extends State<TableroPage> {
       }
     }
     if(cantEnComun > 1){
-      print("Tiene más de 1 en comun");
       return true;
     }
     else{
-      print("Tiene 1 o menos en comun");
       return false;
     }
   }
@@ -611,12 +590,6 @@ class _TableroPageState extends State<TableroPage> {
       if(tienenMasDeUnoEnComun(lista, sequence)) return true;
     }
     return false;
-  }
-  void imprimirSequence(List<CartaConPos> lista){
-    print("Lista:");
-    for(CartaConPos cartapos in lista){
-      print("${cartapos.carta.numero} de ${cartapos.carta.palo}, en ${cartapos.fila},${cartapos.columna} ");
-    }
   }
   void verSiLoAgrego(List<CartaConPos> lista, int ficha){
     if(ficha == 1){
@@ -1006,8 +979,9 @@ class Resultado {
   int ganador;
   int cantSecuences;
   int tiempoJugado;
+  int universo;
 
-  Resultado (this.nivel, this.ganador, this.cantSecuences, this.tiempoJugado);
+  Resultado (this.nivel, this.ganador, this.cantSecuences, this.tiempoJugado, this.universo);
 }
 
 class CartaConPos{

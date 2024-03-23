@@ -3,28 +3,22 @@ import 'package:flutter/widgets.dart';
 import 'package:myapp/EntradaSplashScreen.dart';
 import 'package:myapp/SplashScreenCargaNivel.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'Tablero.dart';
 import 'PaginaInicio.dart';
 import 'myAppState.dart';
 
 void main() {
-  var appState = MyState();
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => appState),
-      ],
-      child: const MyApp(),
+    ChangeNotifierProvider(
+      create: (context) => MyState(),
+      child: MyApp(),
     ),
   );
-
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -32,7 +26,6 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
-
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
         ),
@@ -58,21 +51,20 @@ class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
   bool isPlaying = false;
   Color? J1selectedColor = Colors.blue;
-  int selectedSequence = 1;
-  //String name = '';
-  double nivel = 1;
-  int ultimoNivelDesbloqueado = 30;
-  int ultimoNivelDisponible = 90;
+  double nivelActual = 1;
+  int ultimoNivelDesbloqueado = 1;
   int universoActual = 1;
   int ultimoUniversoDisponible = 1;
+  List<int> nivelesUniversos = [0, 1, 0, 0, 0];
 
 
   @override
   void initState(){
     super.initState();
+    ultimoNivelDesbloqueado = nivelesUniversos[universoActual];
     //initSharedPreferences();
   }
-  Future<void> initSharedPreferences() async {
+  /*Future<void> initSharedPreferences() async {
     await leerDatos();
   }
 
@@ -82,9 +74,9 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       ultimoNivelDesbloqueado = prefs.getInt('ultimoNivelDesbloqueado') ?? 1;
     });
-  }
+  }*/
 
-  void cargarDatos() async{
+  /*void cargarDatos() async{
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('ultimoNivelDesbloqueado', ultimoNivelDesbloqueado);
     //await prefs.setInt("ultimoNivelDesbloqueado", ultimoNivelDesbloqueado);
@@ -92,40 +84,51 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       ultimoNivelDesbloqueado = nuevoNivel;
     });
-  }
+  }*/
   void handleLevelChanged(double nuevoNivel){
     setState(() {
-      nivel = nuevoNivel;
+      nivelActual = nuevoNivel;
     });
-    context.read<MyState>().cambiarNivelActual(nuevoNivel.toInt());
+
   }
   void handleUniverseChanged(int nuevoUniverso){
+    print("Cambiando de universo perriiii");
     setState(() {
       universoActual = nuevoUniverso;
+      ultimoNivelDesbloqueado = nivelesUniversos[universoActual];
+      nivelActual = 1;
     });
   }
 
   void handleMatchFinished(Resultado resultado) async{
-    print("Termino el partido y el ganador fue el jugador  ${resultado.ganador}");
+    print("El nivel que acaba de terminar es: ${resultado.nivel}");
     setState(() {
-      if(resultado.ganador == 1 && resultado.nivel == ultimoNivelDesbloqueado){
-        ultimoNivelDesbloqueado++;
+      if(resultado.ganador == 1 && resultado.nivel%30 == 0){
+        print("Podes pasar al proximo universo!");
+        terminasteElJuego();
+      }
+      else if(resultado.ganador == 1 && nivelActual == nivelesUniversos[universoActual]){
+        setState(() {
+          nivelesUniversos[universoActual]++;
+          ultimoNivelDesbloqueado++;
+        });
+        print("Desbloqueaste el nivel: ${nivelesUniversos[universoActual]} del universo: $universoActual");
       }
       //cargarDatos();
     });
-    print("Desbloqueaste el nivel: $ultimoNivelDesbloqueado");
   }
 
   void handleSiguienteNivel(int siguienteNiv){
-    if(siguienteNiv > ultimoNivelDisponible){
+    if(siguienteNiv > 90){
       terminasteElJuego();
+      print("Te diste vuelta el juego");
     }
     else if(siguienteNiv == 31 || siguienteNiv == 61){
       terminasteElJuego();
     }
     else{
       setState(() {
-        nivel = siguienteNiv.toDouble();
+        nivelActual = siguienteNiv.toDouble();
         startGame();
       });
     }
@@ -163,7 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 setState(() {
                   isPlaying = false;
                   selectedIndex = 0;
-                  selectedSequence = 1;
+                  //selectedSequence = 1;
                 });
               },
               child: Text('Salir'),
@@ -214,8 +217,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void terminasteElJuego(){
     setState(() {
-      if(universoActual == ultimoUniversoDisponible){
+      if(universoActual == ultimoUniversoDisponible && universoActual <3){
         ultimoUniversoDisponible++;
+        nivelesUniversos[ultimoUniversoDisponible]++;
       }
     });
     String completadoPath = "";
@@ -230,7 +234,6 @@ class _MyHomePageState extends State<MyHomePage> {
       case 3:
         completadoPath = "assets/images/Completado3.png";
         texto = "¡Completaste el juego!";
-
     }
     showDialog(
       context: context,
@@ -259,12 +262,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       setState(() {
                         isPlaying = false;
                         selectedIndex = 0;
-                        selectedSequence = 1;
                         if(universoActual<3){
                           universoActual++;
-                          nivel++;
-                          //if(universoActual == 2) nivel = nivel - 30;
-                          //else if(universoActual == 3)nivel = nivel - 60;
+                          nivelActual = 1;
+                          ultimoNivelDesbloqueado = nivelesUniversos[universoActual];
                         }
                       });// Cierra el cuadro de diálogo
                     },
@@ -289,51 +290,43 @@ class _MyHomePageState extends State<MyHomePage> {
           Widget page;
           switch (selectedIndex) {
             case 0:
+              print("ultimoNivelDesbloqueado: ${ultimoNivelDesbloqueado}, universoActual: ${universoActual}, nivelActual: ${nivelActual}");
               titlebar = "";
-              myState.isPlaying = false;
-              page = GeneratorPage(
+              isPlaying = false;
+              page =  GeneratorPage(
                 onStartGame: startGame,
                 onLevelChanged: handleLevelChanged,
                 onUniverseChanged: handleUniverseChanged,
                 mainColor: myState.J1selectedColor!,
-                ultimoNivelDesbloqueado: myState.ultimoNivelDesbloqueado,
-                universo: myState.universoActual,
-                ultimoUniversoDesbloqueado: myState.ultimoUniversoDesbloqueado,
+                universo: universoActual,
+                ultimoUniversoDesbloqueado: ultimoUniversoDisponible,
+                ultimoNivelDesbloqueado: ultimoNivelDesbloqueado,
+                nivelesUniversos: nivelesUniversos,
               );
               break;
             case 1:
-              int nive = nivel.toInt();
-              int level = 0;
-              if (nive == 30)
-                level = 30;
-              else if (nive == 60)
-                level = 60;
-              else if (nive == 90)
-                level = 90;
-              else
-                level = nive % 30;
-              titlebar = "${myState.name} - Nivel ${level.toInt()}";
-              myState.isPlaying = true;
+              titlebar = "Nivel ${nivelActual.toInt()} - Universo ${universoActual}";
+              isPlaying = true;
               page = TableroPage(
                 J1selectedColor: myState.J1selectedColor!,
                 J2selectedColor: Colors.white,
                 name: myState.name,
-                level: level.toDouble(),
-                universo: myState.universoActual,
+                level: nivelActual.toDouble(),
+                universo: universoActual,
                 onMatchFinished: handleMatchFinished,
                 siguienteNivel: handleSiguienteNivel,
               );
               break;
             case 2:
               int cantSecuencias = 2;
-              if (myState.universoActual == 1 || myState.universoActual == 3)
-                cantSecuencias = 1;
-              titlebar = "${myState.name} - Nivel ${nivel.toInt()}";
-              myState.isPlaying = false;
+              if (universoActual == 1 || universoActual == 3) cantSecuencias = 1;
+              titlebar = "Nivel ${nivelActual.toInt()} - Universo ${universoActual}";
+              isPlaying = false;
               page = SplashScreen(
-                nivel: nivel.toInt(),
+                nivel: nivelActual.toInt(),
                 cantidadSequencias: cantSecuencias,
                 j1Color: myState.J1selectedColor!,
+                universo: universoActual,
               );
               break;
             default:
@@ -343,7 +336,7 @@ class _MyHomePageState extends State<MyHomePage> {
           return Scaffold(
             appBar: AppBar(
               title: Text(titlebar),
-              leading: myState.isPlaying
+              leading: isPlaying
                   ? IconButton(
                 icon: Icon(Icons.exit_to_app),
                 tooltip: 'Salir del juego',
