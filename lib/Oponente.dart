@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:myapp/cartaTablero.dart';
 import 'Mazo.dart';
 import 'package:flutter/material.dart';
@@ -70,7 +69,7 @@ class Oponente{
   TableroyCarta tirarCarta(int ficha){
     return strategy!.TirarCarta(matriz, cartasEnMano, ficha);
   }
-  bool? ActualizarCartas(List<Carta> nuevaBaraja){
+  void ActualizarCartas(List<Carta> nuevaBaraja){
     this.cartasEnMano = nuevaBaraja;
   }
   void ActualizarMatriz(List<List<Triplet>> nuevamatriz){

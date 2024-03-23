@@ -126,8 +126,6 @@ class TirarCartaStrategyN5 implements TirarCartaStrategy {
     else if (numero == 2) opciones = opciones2;
     else opciones = opciones4;
 
-    //print("Voy a ver si tiro el ${carta.numero} de ${carta.palo}");
-
     // Función auxiliar para verificar si una fila cumple con algún patrón
     bool buscarPatronesEnFila(List<Triplet> fila) {
       puseCarta = false;
@@ -193,9 +191,7 @@ class TirarCartaStrategyN5 implements TirarCartaStrategy {
       for (List<int> opcion in opciones1) {
         for (int i = 0; i <= fila.length - 5; i++) {
           if (listasIguales(opcion, fila.sublist(i, i + 5).map((triplet) => triplet.fichaPuesta).toList())) {
-            print("Patrón encontrado en la fila:");
             for (int j = i; j < i + 5; j++) {
-              print("${fila[j].numeroCarta} de ${fila[j].palo}");
             }
             // Encontrar la posición con más unos pegados y cambiar la fichaPuesta a 0
             int maxUnosPegados = 0;
@@ -260,16 +256,12 @@ class TirarCartaStrategyN5 implements TirarCartaStrategy {
     else if (numero == 2) opciones = opciones2;
     else opciones = opciones4;
 
-    print("Voy a tirar el Jack Wild defensivo");
-
     // Función auxiliar para verificar si una fila cumple con algún patrón
     bool buscarPatronesEnFila(List<Triplet> fila) {
       for (List<int> opcion in opciones) {
         for (int i = 0; i <= fila.length - 5; i++) {
           if (listasIguales(opcion, fila.sublist(i, i + 5).map((triplet) => triplet.fichaPuesta).toList())) {
-            print("Patrón encontrado en la fila:");
             for (int j = i; j < i + 5; j++) {
-              print("${fila[j].numeroCarta} de ${fila[j].palo}");
               if(fila[j].fichaPuesta == 0){
                 fila[j].fichaPuesta = ficha;
               }

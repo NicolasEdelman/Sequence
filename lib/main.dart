@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:myapp/EntradaSplashScreen.dart';
 import 'package:myapp/SplashScreenCargaNivel.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Tablero.dart';
 import 'PaginaInicio.dart';
 import 'myAppState.dart';
@@ -61,30 +61,39 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState(){
     super.initState();
+    initSharedPreferences();
     ultimoNivelDesbloqueado = nivelesUniversos[universoActual];
-    //initSharedPreferences();
   }
-  /*Future<void> initSharedPreferences() async {
+  Future<void> initSharedPreferences() async {
     await leerDatos();
   }
 
   Future<void> leerDatos() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    //prefs.remove('ultimoNivelDesbloqueado'); // Para resetear lo que hay en la variable en Disco
     setState(() {
-      ultimoNivelDesbloqueado = prefs.getInt('ultimoNivelDesbloqueado') ?? 1;
+      nivelesUniversos[1] = prefs.getInt("Universo1") ?? 1;
+      nivelesUniversos[2] = prefs.getInt("Universo2") ?? 0;
+      nivelesUniversos[3] = prefs.getInt("Universo3") ?? 0;
     });
-  }*/
+    setUltimoUniversoDisponible();
+  }
 
-  /*void cargarDatos() async{
+  void cargarDatos() async{
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('ultimoNivelDesbloqueado', ultimoNivelDesbloqueado);
-    //await prefs.setInt("ultimoNivelDesbloqueado", ultimoNivelDesbloqueado);
-    int nuevoNivel = prefs.getInt('ultimoNivelDesbloqueado') ?? 1;
-    setState(() {
-      ultimoNivelDesbloqueado = nuevoNivel;
-    });
-  }*/
+    await prefs.setInt("Universo1", nivelesUniversos[1]);
+    await prefs.setInt("Universo2", nivelesUniversos[2]);
+    await prefs.setInt("Universo3", nivelesUniversos[3]);
+  }
+
+  void setUltimoUniversoDisponible(){
+    for (int i=0; i<nivelesUniversos.length-1; i++){
+      if(nivelesUniversos[i] != 0&& nivelesUniversos[i+1] == 0){
+        ultimoUniversoDisponible = i;
+      }
+    }
+  }
+
   void handleLevelChanged(double nuevoNivel){
     setState(() {
       nivelActual = nuevoNivel;
@@ -92,7 +101,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   }
   void handleUniverseChanged(int nuevoUniverso){
-    print("Cambiando de universo perriiii");
     setState(() {
       universoActual = nuevoUniverso;
       ultimoNivelDesbloqueado = nivelesUniversos[universoActual];
@@ -114,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
         print("Desbloqueaste el nivel: ${nivelesUniversos[universoActual]} del universo: $universoActual");
       }
-      //cargarDatos();
+      cargarDatos();
     });
   }
 
@@ -290,7 +298,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Widget page;
           switch (selectedIndex) {
             case 0:
-              print("ultimoNivelDesbloqueado: ${ultimoNivelDesbloqueado}, universoActual: ${universoActual}, nivelActual: ${nivelActual}");
+              //print("ultimoNivelDesbloqueado: ${ultimoNivelDesbloqueado}, universoActual: ${universoActual}, nivelActual: ${nivelActual}");
               titlebar = "";
               isPlaying = false;
               page =  GeneratorPage(

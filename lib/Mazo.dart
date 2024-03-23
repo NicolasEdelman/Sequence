@@ -1,6 +1,3 @@
-
-
-
 class Mazo {
   List<Carta> cartas = [];
   int cantCartas = 0;

@@ -1,6 +1,4 @@
-
 import 'package:flutter/material.dart';
-import 'Tablero.dart';
 import 'Mazo.dart';
 
 class CartaTablero extends StatefulWidget {

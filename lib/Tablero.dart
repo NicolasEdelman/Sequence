@@ -121,14 +121,14 @@ class _TableroPageState extends State<TableroPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Padding(padding: EdgeInsets.only(top: 3),),
+                const Padding(padding: EdgeInsets.only(top: 3),),
                 Container(
                   height: 50,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: 7,
                     itemBuilder: (context, index) {
-                      Carta carta = cartasEnManoOponente1[index];
+                      //Carta carta = cartasEnManoOponente1[index];
                       return cartaMano(carta: Carta("", ""), index: index, miTurno: miTurno);
                       //return cartaMano(carta: carta, index: index, miTurno: miTurno);
                     },
@@ -443,8 +443,6 @@ class _TableroPageState extends State<TableroPage> {
 
 
   void tirarCarta(){
-    //print("$name, apoyaste el ${cartaSeleccionadaTablero.numero} de ${cartaSeleccionadaTablero.palo} en el tablero que esta en la fila ${filaCartaSeleccionadaTablero} y columna ${columnaCartaSeleccionadaTablero}");
-
     setState(() {
       miTurno = false;
       ultimaCartaTirada = Carta(cartaPresionada.numero, cartaPresionada.palo);
@@ -477,7 +475,6 @@ class _TableroPageState extends State<TableroPage> {
       }
     }
     oponente.ActualizarCartas(cartasEnManoOponente);
-    //print("Tengo ${oponente.cartasEnMano.length} cartas en mano");
     var retorno = oponente.tirarCarta(ficha);
     setState(() {
       matriz = retorno.tablero;
@@ -496,7 +493,6 @@ class _TableroPageState extends State<TableroPage> {
       }
     }
     oponente.ActualizarCartas(cartasEnManoMia);
-    //print("Tengo ${oponente.cartasEnMano.length} cartas en mano");
     var retorno = oponente.tirarCarta(2);
     setState(() {
       matriz = retorno.tablero;
@@ -549,8 +545,13 @@ class _TableroPageState extends State<TableroPage> {
       mazo.mezclarMazo();
       cartasEnManoMia = [];
     });
-    //cartasEnManoMia.add(Carta("Wild", "Corazon"));
-    for (int i=0; i<=6; i++){
+    cartasEnManoMia.add(Carta("Wild", "Corazon"));
+    cartasEnManoMia.add(Carta("Wild", "Corazon"));
+    cartasEnManoMia.add(Carta("Wild", "Corazon"));
+    entregarCarta(2);
+    entregarCarta(2);
+    entregarCarta(2);
+    for (int i=0; i<=3; i++){
       entregarCarta(1);
       entregarCarta(2);
       if(universo == 3) entregarCarta(4);
