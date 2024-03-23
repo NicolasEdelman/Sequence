@@ -85,7 +85,7 @@ class _CartaTableroState extends State<CartaTablero> {
   }
 
   Widget _buildCelda(Color colorCelda, String imagePath, double sizeNumber) {
-    bool isDarkJ2Color = widget.J2Color != null ? ThemeData.estimateBrightnessForColor(colorCelda!) == Brightness.dark : false;
+    bool isDarkJ2Color = widget.J2Color != null ? ThemeData.estimateBrightnessForColor(colorCelda) == Brightness.dark : false;
     return Container(
       margin: EdgeInsets.all(1), // Espacio entre las celdas
       padding: EdgeInsets.symmetric(vertical: 2),
